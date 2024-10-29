@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-const LoginScreen: React.FC = () => {
+const AuthScreen: React.FC = () => {
   const LogIn = (): void => {
     Alert.alert("Sign in button pressed");
   };
@@ -132,4 +132,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default AuthScreen;
