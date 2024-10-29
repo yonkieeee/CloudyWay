@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, Button, Alert } from "react-native";
-import { authStyles } from "@/src/common/styles/authStyles";
+import { Text, View, TextInput, Alert, TouchableOpacity } from "react-native";
+import authStyles from "@/src/common/styles/authStyles";
 
 const SignUpScreen: React.FC = () => {
   const [username, setUsername] = useState<string>("");
@@ -20,33 +20,50 @@ const SignUpScreen: React.FC = () => {
     <View style={authStyles.container}>
       <Text style={authStyles.headerOne}>CloudyWay</Text>
       <Text style={authStyles.headerTwo}>Create your account</Text>
-      <Text style={authStyles.commonText}>Username</Text>
-      <TextInput
-        style={authStyles.input}
-        value={username}
-        onChangeText={setUsername}
-      />
-      <Text style={authStyles.commonText}>Email</Text>
-      <TextInput
-        style={authStyles.input}
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <Text style={authStyles.commonText}>Create password</Text>
-      <TextInput
-        style={authStyles.input}
-        secureTextEntry
-        value={createPassword}
-        onChangeText={setPassword}
-      />
-      <Text style={authStyles.commonText}>Confirm password</Text>
-      <TextInput style={authStyles.input} secureTextEntry />
-      <Button title="Sign Up" onPress={handleSignUp} />
-      <Text style={authStyles.commonText}>
-        Already have an account?{" "}
-        <Text style={authStyles.commonText}>Sign in</Text>
-      </Text>
+
+      <View style={authStyles.inputContainer}>
+        <Text style={authStyles.label}>Username</Text>
+        <TextInput
+          style={authStyles.input}
+          value={username}
+          onChangeText={setUsername}
+        />
+      </View>
+
+      <View style={authStyles.inputContainer}>
+        <Text style={authStyles.label}>Email</Text>
+        <TextInput
+          style={authStyles.input}
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View>
+
+      <View style={authStyles.inputContainer}>
+        <Text style={authStyles.label}>Create password</Text>
+        <TextInput
+          style={authStyles.input}
+          secureTextEntry
+          value={createPassword}
+          onChangeText={setPassword}
+        />
+      </View>
+
+      <View style={authStyles.inputContainer}>
+        <Text style={authStyles.label}>Confirm password</Text>
+        <TextInput style={authStyles.input} secureTextEntry />
+      </View>
+
+      <TouchableOpacity style={authStyles.signInButton} onPress={handleSignUp}>
+        <Text style={authStyles.buttonText}>Sign up</Text>
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <Text style={authStyles.signUpText}>
+          Already have an account?{" "}
+          <Text style={authStyles.signUpLink}>Sign up.</Text>
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
