@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const AuthScreen: React.FC = () => {
-  const LogIn = (): void => {
+  const SignIn = (): void => {
     Alert.alert("Sign in button pressed");
   };
 
@@ -23,7 +23,7 @@ const AuthScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>CloudyWay</Text>
 
-      <TouchableOpacity style={styles.loginButton} onPress={LogIn}>
+      <TouchableOpacity style={styles.signinButton} onPress={SignIn}>
         <Text style={styles.textButton}>Sign in</Text>
       </TouchableOpacity>
 
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#030E38",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 55,
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     textAlign: "center",
   },
-  loginButton: {
+  signinButton: {
     backgroundColor: "#64A3DF",
     paddingVertical: 10,
     paddingHorizontal: 130,
