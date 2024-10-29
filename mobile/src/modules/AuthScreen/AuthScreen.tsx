@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-const LoginScreen: React.FC = () => {
+const AuthScreen: React.FC = () => {
   const LogIn = (): void => {
     Alert.alert("Sign in button pressed");
   };
@@ -67,15 +67,15 @@ const styles = StyleSheet.create({
   loginButton: {
     backgroundColor: "#64A3DF",
     paddingVertical: 10,
-    paddingHorizontal: 100,
-    borderRadius: 5,
+    paddingHorizontal: 130,
+    borderRadius: 9,
     marginBottom: 20,
   },
   signupButton: {
     backgroundColor: "#000",
     paddingVertical: 10,
-    paddingHorizontal: 100,
-    borderRadius: 5,
+    paddingHorizontal: 128,
+    borderRadius: 9,
     marginBottom: 20,
   },
   textButton: {
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   line: {
-    flex: 1,
+    width: 50,
     height: 1,
     backgroundColor: "#E2E2E2",
   },
@@ -105,9 +105,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 6,
     marginBottom: 10,
-    width: 300,
+    width: 290,
   },
   facebookButton: {
     flexDirection: "row",
@@ -115,21 +115,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 6,
     marginBottom: 10,
     borderWidth: 2,
     borderColor: "#FFFFFF",
-    width: 300,
+    width: 290,
   },
   socialButtonText: {
     color: "#000",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
-    marginLeft: 10,
+    marginLeft: 30,
   },
   icon: {
     marginRight: 10,
   },
 });
 
-export default LoginScreen;
+export default AuthScreen;
