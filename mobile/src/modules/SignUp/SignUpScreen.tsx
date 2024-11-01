@@ -25,6 +25,8 @@ const SignUpScreen: React.FC = () => {
         <Text style={authStyles.label}>Username</Text>
         <TextInput
           style={authStyles.input}
+          placeholder="Enter your username"
+          placeholderTextColor="#aaa"
           value={username}
           onChangeText={setUsername}
         />
@@ -34,6 +36,8 @@ const SignUpScreen: React.FC = () => {
         <Text style={authStyles.label}>Email</Text>
         <TextInput
           style={authStyles.input}
+          placeholder="Enter your email"
+          placeholderTextColor="#aaa"
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
@@ -44,6 +48,8 @@ const SignUpScreen: React.FC = () => {
         <Text style={authStyles.label}>Create password</Text>
         <TextInput
           style={authStyles.input}
+          placeholder="Create your password"
+          placeholderTextColor="#aaa"
           secureTextEntry
           value={createPassword}
           onChangeText={setPassword}
@@ -52,7 +58,12 @@ const SignUpScreen: React.FC = () => {
 
       <View style={authStyles.inputContainer}>
         <Text style={authStyles.label}>Confirm password</Text>
-        <TextInput style={authStyles.input} secureTextEntry />
+        <TextInput
+          style={authStyles.input}
+          placeholder="Confirm your password"
+          placeholderTextColor="#aaa"
+          secureTextEntry
+        />
       </View>
 
       <TouchableOpacity style={authStyles.signInButton} onPress={handleSignUp}>
