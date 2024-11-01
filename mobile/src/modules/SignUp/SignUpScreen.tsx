@@ -3,11 +3,20 @@ import { Text, View, TextInput, Alert, TouchableOpacity } from "react-native";
 import authStyles from "@/src/common/styles/authStyles";
 
 const SignUpScreen: React.FC = () => {
-  const [username, setUsername] = useState<string>("");
+  const [username, setUsername] = useState<string>(""); // Define username here
   const [email, setEmail] = useState<string>("");
   const [createPassword, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const handleSignUp = () => {
+    const obj = {
+      username: username,
+      email: email,
+      createPassword: createPassword,
+      confirmPassword: confirmPassword,
+    };
+    console.log("Lox", obj);
+
     if (username && email && createPassword) {
       Alert.alert("Success", "Account created successfully!");
       // Можна додати логіку реєстрації, наприклад, запит до бекенду
@@ -63,6 +72,8 @@ const SignUpScreen: React.FC = () => {
           placeholder="Confirm your password"
           placeholderTextColor="#aaa"
           secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
         />
       </View>
 
