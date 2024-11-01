@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   signinButton: {
-    backgroundColor: "#64A3DF",
+    backgroundColor: "#1E6AFF",
     paddingVertical: 10,
     paddingHorizontal: 130,
     borderRadius: 9,
