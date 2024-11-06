@@ -10,7 +10,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String UID;
+    private String uid;
 
     private String username;
 
@@ -80,11 +80,11 @@ public class User {
         this.photo = photo;
     }
 
-    public String getUID() {
-        return UID;
+    public String getUid() {
+        return uid;
     }
 
-    public void setUID(String UID) {
-        this.UID = UID;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }
