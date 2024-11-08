@@ -18,7 +18,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try{
-            if (userRepository.existsByUID(user.getUid())) {
+            if (userRepository.existsByuid(user.getUid())) {
                 return ResponseEntity.badRequest().body("User already exists");
             }
 
@@ -41,9 +41,10 @@ public class UserController {
     @GetMapping("/{uid}")
     public ResponseEntity<?> getUserById(@PathVariable String uid) {
         try{
-            return ResponseEntity.ok(userRepository.findByUID(uid));
+            return ResponseEntity.ok(userRepository.findByuid(uid));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
 }
