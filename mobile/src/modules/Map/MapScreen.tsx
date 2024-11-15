@@ -48,7 +48,7 @@ const AuthScreen: React.FC = () => {
     };
 
     const handleSearchSubmit = () => {
-        Alert.alert("Searching for:", searchText);
+        Alert.alert("Searching", searchText);
         endSearch();
     };
 
@@ -200,12 +200,12 @@ const styles = StyleSheet.create({
         flexDirection: "row", // Вирівнювання дочірніх елементів в ряд
         alignItems: "center", // Вертикальне вирівнювання елементів по центру
         justifyContent: "center", // Горизонтальне вирівнювання елементів по центру
-        backgroundColor: "#84B0E1", // Колір фону кнопки
+        backgroundColor: "#84B0E1", // Початковий колір фону
         paddingVertical: 5, // Вертикальні відступи
         paddingHorizontal: 10, // Горизонтальні відступи
-        width: 80, // Ширина кнопки
-        height: 45, // Висота кнопки
-        borderRadius: 30, // Зробити кнопку круглою
+        width: 80, // Початкова ширина кнопки
+        height: 45, // Початкова висота кнопки
+        borderRadius: 30, // Кругла форма
         position: "absolute", // Абсолютне позиціювання
         top: 0, // Відстань від верхньої границі
         right: 2,
