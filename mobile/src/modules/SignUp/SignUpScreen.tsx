@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Text, View, TextInput, Alert, TouchableOpacity } from "react-native";
 import authStyles from "@/src/common/styles/authStyles";
 import { useRouter } from "expo-router";
+import { getAuth, createUserWithEmailAndPassword } from "@firebase/auth";
+import { firebaseSDK } from "@/FirebaseConfig";
 
 const SignUpScreen: React.FC = () => {
   const [username, setUsername] = useState<string>(""); // Define username here
@@ -9,22 +11,16 @@ const SignUpScreen: React.FC = () => {
   const [createPassword, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const router = useRouter();
+  const auth = getAuth(firebaseSDK);
 
-  const handleSignUp = () => {
-    const obj = {
-      username: username,
-      email: email,
-      createPassword: createPassword,
-      confirmPassword: confirmPassword,
-    };
-    console.log("Lox", obj);
-
-    if (username && email && createPassword) {
+  const handleSignUp = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, confirmPassword);
       Alert.alert("Success", "Account created successfully!");
-      // Можна додати логіку реєстрації, наприклад, запит до бекенду
-        router.push("/map");
-    } else {
-      Alert.alert("Error", "Please fill all the fields");
+      router.push("/map");
+    } catch (e) {
+      console.log("@sign-up-error", e);
+      Alert.alert("Error", "Some error occurred...");
     }
   };
 
