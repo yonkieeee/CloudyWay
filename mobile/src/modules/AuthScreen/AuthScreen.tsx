@@ -1,33 +1,34 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useRouter } from "expo-router";
 
 const AuthScreen: React.FC = () => {
-  const SignIn = (): void => {
-    Alert.alert("Sign in button pressed");
-  };
-
-  const SignUp = (): void => {
-    Alert.alert("Sign up button pressed");
-  };
+  const router = useRouter();
 
   const GoogleLogin = (): void => {
-    Alert.alert("Google login button pressed");
+    alert("Google login button pressed");
   };
 
   const FacebookLogin = (): void => {
-    Alert.alert("Facebook login button pressed");
+    alert("Facebook login button pressed");
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>CloudyWay</Text>
 
-      <TouchableOpacity style={styles.signinButton} onPress={SignIn}>
+      <TouchableOpacity
+        style={styles.signinButton}
+        onPress={() => router.push("/signIn")}
+      >
         <Text style={styles.textButton}>Sign in</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.signupButton} onPress={SignUp}>
+      <TouchableOpacity
+        style={styles.signupButton}
+        onPress={() => router.push("/signUp")}
+      >
         <Text style={styles.textButton}>Sign up</Text>
       </TouchableOpacity>
 
@@ -132,5 +133,4 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
-
 export default AuthScreen;

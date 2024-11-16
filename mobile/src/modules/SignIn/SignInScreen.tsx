@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { Text, View, TextInput, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import authStyles from "@/src/common/styles/authStyles";
+import { useRouter } from "expo-router";
 
 const SignInScreen: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const router = useRouter();
 
     const handleSignIn = () => {
-
+        // Додайте логіку для входу
     };
 
     return (
@@ -37,15 +39,21 @@ const SignInScreen: React.FC = () => {
                     value={password}
                     onChangeText={setPassword}
                 />
-
                 <TouchableOpacity>
                     <Text style={authStyles.forgotPassword}>Forgot password?</Text>
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={authStyles.signInButton} onPress={handleSignIn}>
+            <TouchableOpacity
+                style={authStyles.signInButton}
+                onPress={() => {
+                    handleSignIn();
+                    router.push("/map");
+                }}
+            >
                 <Text style={authStyles.buttonText}>Sign in</Text>
             </TouchableOpacity>
+
 
             <View style={authStyles.dividerContainer}>
                 <View style={authStyles.divider} />
@@ -62,7 +70,7 @@ const SignInScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/signUp")}>
                 <Text style={authStyles.signUpText}>
                     Don’t have an account? <Text style={authStyles.signUpLink}>Sign up.</Text>
                 </Text>
