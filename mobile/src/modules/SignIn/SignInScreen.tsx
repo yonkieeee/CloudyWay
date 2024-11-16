@@ -1,18 +1,46 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import authStyles from "@/src/common/styles/authStyles";
+import { useRouter } from "expo-router";
 
 const SignInScreen: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [emailError, setEmailError] = useState<string>('');
+    const [passwordError, setPasswordError] = useState<string>('');
+    const router = useRouter();
 
     const handleSignIn = () => {
 
+        setEmailError('');
+        setPasswordError('');
+
+        let isValid = true;
+
+        if (!email) {
+            setEmailError('Please enter your email');
+            isValid = false;
+        }
+
+
+        if (!password) {
+            setPasswordError('Please enter your password');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return;
+        }
+
+        router.push("/map");
     };
 
     return (
-        <View style={authStyles.container}>
+        <KeyboardAvoidingView
+            style={authStyles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
             <Text style={authStyles.headerOne}>CloudyWay</Text>
             <Text style={authStyles.headerTwo}>Sign in to your account</Text>
 
@@ -24,7 +52,9 @@ const SignInScreen: React.FC = () => {
                     placeholderTextColor="#aaa"
                     value={email}
                     onChangeText={setEmail}
+                    keyboardType="email-address"
                 />
+                {emailError ? <Text style={authStyles.errorText}>{emailError}</Text> : null}
             </View>
 
             <View style={authStyles.inputContainer}>
@@ -37,13 +67,16 @@ const SignInScreen: React.FC = () => {
                     value={password}
                     onChangeText={setPassword}
                 />
-
-                <TouchableOpacity>
+                {passwordError ? <Text style={authStyles.errorText}>{passwordError}</Text> : null}
+                <TouchableOpacity onPress={() => router.push("/forgotPassword")}>
                     <Text style={authStyles.forgotPassword}>Forgot password?</Text>
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={authStyles.signInButton} onPress={handleSignIn}>
+            <TouchableOpacity
+                style={authStyles.signInButton}
+                onPress={handleSignIn}
+            >
                 <Text style={authStyles.buttonText}>Sign in</Text>
             </TouchableOpacity>
 
@@ -62,12 +95,12 @@ const SignInScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/signUp")}>
                 <Text style={authStyles.signUpText}>
                     Don’t have an account? <Text style={authStyles.signUpLink}>Sign up.</Text>
                 </Text>
             </TouchableOpacity>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 
