@@ -5,6 +5,9 @@ import com.example.backend.repositories.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @RequestMapping("/users")
 @CrossOrigin(origins = "*")
@@ -18,11 +21,11 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try{
-            if (userRepository.existsByuid(user.getUid())) {
+            if (userRepository.existById(user.getUid())) {
                 return ResponseEntity.badRequest().body("User already exists");
             }
 
-            userRepository.save(user);
+            userRepository.saveUser(user);
             return ResponseEntity.ok("User created");
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -30,21 +33,38 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(@RequestParam(value="uid", required = false) String uid) {
         try{
-            return ResponseEntity.ok(userRepository.findAll());
+            if (uid == null) {
+                return ResponseEntity.ok(userRepository.getAllUsers());
+            }
+            if (userRepository.existById(uid)) {
+                return ResponseEntity.ok(userRepository.getUser(uid));
+            }
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+        return null;
     }
 
-    @GetMapping("/{uid}")
-    public ResponseEntity<?> getUserById(@PathVariable String uid) {
-        try{
-            return ResponseEntity.ok(userRepository.findByuid(uid));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestParam(value="uid") String uid
+            , @RequestBody Map<String, Object> update) throws ExecutionException, InterruptedException {
+        if (!userRepository.existById(uid)){
+            return ResponseEntity.badRequest().body("User doesn`t exist");
         }
+        userRepository.changeUser(uid, update);
+            return ResponseEntity.ok("User updated");
+
     }
-    
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(@RequestParam(value="uid") String uid) throws ExecutionException, InterruptedException {
+        if(!userRepository.existById(uid)){
+            return ResponseEntity.badRequest().body("User doesn`t exist");
+        }
+
+        userRepository.deleteUser(uid);
+        return ResponseEntity.ok("User deleted");
+    }
 }
