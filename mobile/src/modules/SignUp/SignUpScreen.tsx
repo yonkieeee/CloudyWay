@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Text, View, TextInput, Alert, TouchableOpacity } from "react-native";
 import authStyles from "@/src/common/styles/authStyles";
+import { useRouter } from "expo-router";
 
 const SignUpScreen: React.FC = () => {
   const [username, setUsername] = useState<string>(""); // Define username here
   const [email, setEmail] = useState<string>("");
   const [createPassword, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const router = useRouter();
 
   const handleSignUp = () => {
     const obj = {
@@ -20,6 +22,7 @@ const SignUpScreen: React.FC = () => {
     if (username && email && createPassword) {
       Alert.alert("Success", "Account created successfully!");
       // Можна додати логіку реєстрації, наприклад, запит до бекенду
+        router.push("/map");
     } else {
       Alert.alert("Error", "Please fill all the fields");
     }
@@ -80,10 +83,10 @@ const SignUpScreen: React.FC = () => {
       <TouchableOpacity style={authStyles.signInButton} onPress={handleSignUp}>
         <Text style={authStyles.buttonText}>Sign up</Text>
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/signIn")}>
         <Text style={authStyles.signUpText}>
           Already have an account?{" "}
-          <Text style={authStyles.signUpLink}>Sign up.</Text>
+          <Text style={authStyles.signUpLink}>Sign in.</Text>
         </Text>
       </TouchableOpacity>
     </View>
