@@ -15,39 +15,39 @@ const AuthScreen: React.FC = () => {
   };
 
   return (
-      <View style={styles.container}>
-        <Text style={styles.title}>CloudyWay</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>CloudyWay</Text>
 
-        <TouchableOpacity
-            style={styles.signinButton}
-            onPress={() => router.push("/signIn")}
-        >
-          <Text style={styles.textButton}>Sign in</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.signinButton}
+        onPress={() => router.push("/signIn")}
+      >
+        <Text style={styles.textButton}>Sign in</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-            style={styles.signupButton}
-            onPress={() => router.push("/signUp")}
-        >
-          <Text style={styles.textButton}>Sign up</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.signupButton}
+        onPress={() => router.push("/signUp")}
+      >
+        <Text style={styles.textButton}>Sign up</Text>
+      </TouchableOpacity>
 
-        <View style={styles.divider}>
-          <View style={styles.line} />
-          <Text style={styles.orText}>or use social sign up</Text>
-          <View style={styles.line} />
-        </View>
-
-        <TouchableOpacity style={styles.googleButton} onPress={GoogleLogin}>
-          <Icon name="google" size={24} color="#DB4437" style={styles.icon} />
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.facebookButton} onPress={FacebookLogin}>
-          <Icon name="facebook" size={24} color="#4267B2" style={styles.icon} />
-          <Text style={styles.socialButtonText}>Continue with Facebook</Text>
-        </TouchableOpacity>
+      <View style={styles.divider}>
+        <View style={styles.line} />
+        <Text style={styles.orText}>or use social sign up</Text>
+        <View style={styles.line} />
       </View>
+
+      <TouchableOpacity style={styles.googleButton} onPress={GoogleLogin}>
+        <Icon name="google" size={24} color="#DB4437" style={styles.icon} />
+        <Text style={styles.socialButtonText}>Continue with Google</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.facebookButton} onPress={FacebookLogin}>
+        <Icon name="facebook" size={24} color="#4267B2" style={styles.icon} />
+        <Text style={styles.socialButtonText}>Continue with Facebook</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
