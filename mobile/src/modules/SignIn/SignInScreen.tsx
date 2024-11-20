@@ -1,16 +1,26 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import authStyles from "@/src/common/styles/authStyles";
 import { useRouter } from "expo-router";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { firebaseSDK } from "@/FirebaseConfig";
 
 const SignInScreen: React.FC = () => {
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
     const router = useRouter();
+    const auth = getAuth(firebaseSDK);
 
-    const handleSignIn = () => {
-        // Додайте логіку для входу
+    const handleSignIn = async () => {
+        try {
+
+            await signInWithEmailAndPassword(auth, email, password);
+            router.push("/map");
+        } catch (e) {
+            console.log("@sign-in-error", e);
+            Alert.alert("Error", "Incorrect email or password.");
+        }
     };
 
     return (
@@ -18,6 +28,7 @@ const SignInScreen: React.FC = () => {
             <Text style={authStyles.headerOne}>CloudyWay</Text>
             <Text style={authStyles.headerTwo}>Sign in to your account</Text>
 
+            {}
             <View style={authStyles.inputContainer}>
                 <Text style={authStyles.label}>Email</Text>
                 <TextInput
@@ -26,9 +37,11 @@ const SignInScreen: React.FC = () => {
                     placeholderTextColor="#aaa"
                     value={email}
                     onChangeText={setEmail}
+                    keyboardType="email-address"
                 />
             </View>
 
+            {}
             <View style={authStyles.inputContainer}>
                 <Text style={authStyles.label}>Password</Text>
                 <TextInput
@@ -39,28 +52,30 @@ const SignInScreen: React.FC = () => {
                     value={password}
                     onChangeText={setPassword}
                 />
-                <TouchableOpacity>
+                {}
+                <TouchableOpacity onPress={() => router.push("/forgotPassword")}>
                     <Text style={authStyles.forgotPassword}>Forgot password?</Text>
                 </TouchableOpacity>
             </View>
 
+            {}
             <TouchableOpacity
                 style={authStyles.signInButton}
                 onPress={() => {
                     handleSignIn();
-                    router.push("/map");
                 }}
             >
                 <Text style={authStyles.buttonText}>Sign in</Text>
             </TouchableOpacity>
 
-
+            {}
             <View style={authStyles.dividerContainer}>
                 <View style={authStyles.divider} />
                 <Text style={authStyles.dividerText}>or use social sign in</Text>
                 <View style={authStyles.divider} />
             </View>
 
+            {}
             <View style={authStyles.socialContainer}>
                 <TouchableOpacity style={authStyles.socialButton}>
                     <FontAwesome name="google" size={24} color="#EA4335" />
@@ -70,9 +85,11 @@ const SignInScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
+            {}
             <TouchableOpacity onPress={() => router.push("/signUp")}>
                 <Text style={authStyles.signUpText}>
-                    Don’t have an account? <Text style={authStyles.signUpLink}>Sign up.</Text>
+                    Don’t have an account?{" "}
+                    <Text style={authStyles.signUpLink}>Sign up.</Text>
                 </Text>
             </TouchableOpacity>
         </View>
