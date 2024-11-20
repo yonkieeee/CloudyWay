@@ -9,4 +9,5 @@ export const ROUTES = {
   forgotPassword: "forgotPassword",
   forgotPasswordSend: "forgotPasswordSend",
   addLocation: "addLocation",
+  details: "details",
 };
