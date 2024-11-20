@@ -20,7 +20,14 @@ const authStyles = StyleSheet.create({
     color: "#fff",
     fontSize: 24,
     marginBottom: 30,
+    textAlign: "center",
   },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+  },
+
   commonText: {
     //універсальний текст
     fontSize: 16,
@@ -110,6 +117,29 @@ const authStyles = StyleSheet.create({
     color: "#1E6AFF",
     fontWeight: "bold",
   },
+  instructionText: {
+    fontSize: 16,
+    color: "#ddd",  // Світліший колір для інструкцій
+    textAlign: "center",
+    marginBottom: 30,
+  },
+  iconContainer: {
+    marginVertical: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  lockIcon: {
+    width: 100,  // Розмір іконки
+    height: 100, // Розмір іконки
+  },
+  // Додано стиль для footerText
+  footerText: {
+    fontSize: 14,
+    color: "#ccc",  // Можна змінити на інший колір
+    textAlign: "center",
+    marginTop: 190,
+  },
+
 });
 
 export default authStyles;

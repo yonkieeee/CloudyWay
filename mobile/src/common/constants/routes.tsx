@@ -6,4 +6,6 @@ export const ROUTES = {
   profile: "profile",
   album: "album",
   map: "map",
+  forgotPassword: "forgotPassword",
+  forgotPasswordSend: "forgotPasswordSend",
 };
