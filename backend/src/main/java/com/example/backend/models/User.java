@@ -19,11 +19,10 @@ public class User {
     private String dateOfBirth;
     private String gender;
     private String region;
-    private String photo;
 
     public User(){}
 
-    public User(String uid, String username, String email, String password, String dateOfBirth, String gender, String region, String photo) {
+    public User(String uid, String username, String email, String password, String dateOfBirth, String gender, String region) {
         this.uid = uid;
         this.username = username;
         this.email = email;
@@ -31,6 +30,5 @@ public class User {
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.region = region;
-        this.photo = photo;
     }
 }

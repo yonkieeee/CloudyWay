@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PasswordResetService {
+public class PasswordService {
 
     private final UserRepository userRepository;
 
     @Autowired
-    public PasswordResetService(UserRepository userRepository) {
+    public PasswordService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
