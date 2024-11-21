@@ -25,6 +25,10 @@ public class UserController {
                 return ResponseEntity.badRequest().body("User already exists");
             }
 
+            if (userRepository.usernameExists(user.getUsername())){
+                return ResponseEntity.badRequest().body("Username already exists");
+            }
+
             userRepository.saveUser(user);
             return ResponseEntity.ok("User created");
         }catch (Exception e){
