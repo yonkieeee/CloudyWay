@@ -5,6 +5,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,9 @@ public class UserRepository{
     }
 
     public void saveUser(User user) throws ExecutionException, InterruptedException {
+        String hashPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        user.setPassword(hashPassword);
+
         ApiFuture<WriteResult> future = usersCollection.document(user.getUid()).set(user);
         future.get();
     }
@@ -38,9 +42,9 @@ public class UserRepository{
         return Optional.empty();
     }
 
-    public String deleteUser(String uid) throws ExecutionException, InterruptedException {
+    public void deleteUser(String uid) throws ExecutionException, InterruptedException {
         ApiFuture<WriteResult> future = usersCollection.document(uid).delete();
-        return future.get().getUpdateTime().toString();
+        future.get();
     }
 
     public Boolean existById(String uid) throws ExecutionException, InterruptedException {
@@ -48,6 +52,14 @@ public class UserRepository{
         ApiFuture<DocumentSnapshot> future = docRef.get();
         DocumentSnapshot document = future.get();
 
+        return document.exists();
+    }
+
+    public Boolean usernameExists(String username) throws ExecutionException, InterruptedException {
+        DocumentReference docRef = usersCollection.document(username);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+
+        DocumentSnapshot document = future.get();
         return document.exists();
     }
 

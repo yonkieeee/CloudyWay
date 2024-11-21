@@ -29,7 +29,7 @@ public class FireBaseConfig {
 
     @Bean
     public Firestore firestore(FirebaseApp firebaseApp) {
-        // Firestore bean uses the initialized FirebaseApp
+
         return FirestoreClient.getFirestore(firebaseApp);
     }
 }
