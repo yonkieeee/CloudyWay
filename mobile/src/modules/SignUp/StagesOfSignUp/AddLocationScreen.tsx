@@ -11,7 +11,7 @@ const AddLocationScreen: React.FC = () => {
   const handleNext = () => {
     if (location) {
       router.push("/details");
-      Alert.alert("Success", " successfully!");
+      // Alert.alert("Success", " successfully!");
     } else {
       alert("Please add a location");
     }

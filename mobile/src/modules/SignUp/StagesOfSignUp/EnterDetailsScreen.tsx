@@ -18,8 +18,8 @@ const EnterDetailsScreen: React.FC = () => {
 
   const handleContinue = () => {
     if (birthDate && gender) {
-      Alert.alert("Success", "Details saved successfully!");
-      // router.push("/nextScreen");
+      Alert.alert("Success", "Account created successfully!");
+      router.push("/map");
     } else {
       alert("Please fill out all fields");
     }
