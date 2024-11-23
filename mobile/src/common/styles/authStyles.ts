@@ -139,48 +139,6 @@ const authStyles = StyleSheet.create({
     textAlign: "center",
     marginTop: 190,
   },
-  picker: {
-    height: 50,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderRadius: 9,
-  },
-  labelpicker: {
-    color: "#aaa", // Сірий колір для тексту
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  dropdown: {
-    // Контейнер для кнопки
-    backgroundColor: "#fff",
-    borderRadius: 9,
-    padding: 10,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginBottom: 10,
-  },
-  dropdownText: {
-    // Текст кнопки
-    color: "#aaa", // Сірий текст для "placeholder"
-    fontSize: 16,
-  },
-  dropdownList: {
-    backgroundColor: "#fff", // Білий фон
-    borderRadius: 9, // Закруглені кути
-    width: "100%", // Займає 100% ширини контейнера
-    marginTop: 5, // Відступ зверху для простору
-    paddingVertical: 5, // Відступ зверху/знизу всередині
-    borderWidth: 1, // Тонка рамка
-    borderColor: "#ddd", // Світло-сірий колір рамки
-    alignSelf: "stretch", // Розтягує список по ширині батьківського елемента
-  },
-  dropdownItemText: {
-    // Текст кожного пункту списку
-    fontSize: 16,
-    color: "#000",
-    padding: 10,
-  },
 });
 
 export default authStyles;
