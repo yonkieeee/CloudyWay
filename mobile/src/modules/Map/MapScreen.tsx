@@ -211,9 +211,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold", // Жирний шрифт для заголовка
         textAlign: "center", // Текст по центру
         position: "absolute", // Абсолютне позиціювання
-        top: 140, // Відступ від верхнього краю
-        left: "50%", // Вирівнювання по горизонталі по центру
-        transform: [{ translateX: -140 }], // Переміщаємо заголовок вліво, щоб центр був на середині екрану
+        top: 145, // Відступ від верхнього краю
+        left: 37, // Відступ від лівого краю
+        right: 37, // Відступ від правого краю
+        transform: "translate(-50%, -50%)", // Зміщення для абсолютного центру
     },
     barsButton: {
         flexDirection: "row", // Напрямок елементів в ряду
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
         position: "absolute", // Абсолютне позиціювання
         bottom: 70, // Відступ від нижнього краю
         left: "40%", // Відступ від лівого краю (50% по центру + додатковий зсув)
-        transform: [{ translateX: -30 }], // Коригуємо відстань для розміщення по центру
+        transform: [{translateX: -30}], // Коригуємо відстань для розміщення по центру
     },
     plusButton: {
         flexDirection: "row", // Напрямок елементів в ряду
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
         position: "absolute", // Абсолютне позиціювання
         bottom: 70, // Відступ від нижнього краю
         left: "40%", // Відступ від лівого краю
-        transform: [{ translateX: 90 }], // Зсув вправо для кнопки
+        transform: [{translateX: 90}], // Зсув вправо для кнопки
     },
     modalOverlay: {
         flex: 1, // Флекс контейнер, що займає весь простір
