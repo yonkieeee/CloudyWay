@@ -16,8 +16,8 @@ const SignUpScreen: React.FC = () => {
   const handleSignUp = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, confirmPassword);
-      Alert.alert("Success", "Account created successfully!");
-      router.push("/map");
+      // Alert.alert("Success", "Account created successfully!");
+      router.push("/addLocation");
     } catch (e) {
       console.log("@sign-up-error", e);
       Alert.alert("Error", "Some error occurred...");

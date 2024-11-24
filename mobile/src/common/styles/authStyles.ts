@@ -23,7 +23,7 @@ const authStyles = StyleSheet.create({
     textAlign: "center",
   },
   errorText: {
-    color: 'red',
+    color: "red",
     fontSize: 12,
     marginTop: 5,
   },
@@ -119,7 +119,7 @@ const authStyles = StyleSheet.create({
   },
   instructionText: {
     fontSize: 16,
-    color: "#ddd",  // Світліший колір для інструкцій
+    color: "#ddd", // Світліший колір для інструкцій
     textAlign: "center",
     marginBottom: 30,
   },
@@ -129,17 +129,16 @@ const authStyles = StyleSheet.create({
     alignItems: "center",
   },
   lockIcon: {
-    width: 100,  // Розмір іконки
+    width: 100, // Розмір іконки
     height: 100, // Розмір іконки
   },
   // Додано стиль для footerText
   footerText: {
     fontSize: 14,
-    color: "#ccc",  // Можна змінити на інший колір
+    color: "#ccc", // Можна змінити на інший колір
     textAlign: "center",
     marginTop: 190,
   },
-
 });
 
 export default authStyles;

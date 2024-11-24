@@ -12,12 +12,14 @@ import {
     Modal,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useRouter } from "expo-router";
 
 const AuthScreen: React.FC = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     const searchWidth = useState(new Animated.Value(90))[0];
+    const router = useRouter();
 
     const Bars = (): void => {
         setIsMenuVisible(true);
@@ -86,7 +88,7 @@ const AuthScreen: React.FC = () => {
     };
 
     const Profile = (): void => {
-        Alert.alert("Profile account");
+        router.push("/profile")
     };
 
     const Plus = (): void => {

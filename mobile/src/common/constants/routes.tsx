@@ -8,4 +8,6 @@ export const ROUTES = {
   map: "map",
   forgotPassword: "forgotPassword",
   forgotPasswordSend: "forgotPasswordSend",
+  addLocation: "addLocation",
+  details: "details",
 };
