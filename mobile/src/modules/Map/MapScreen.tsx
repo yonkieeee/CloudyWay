@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
         top: 145, // Відступ від верхнього краю
         left: 37, // Відступ від лівого краю
         right: 37, // Відступ від правого краю
-        transform: "translate(-50%, -50%)", // Зміщення для абсолютного центру
+
     },
     barsButton: {
         flexDirection: "row", // Напрямок елементів в ряду
