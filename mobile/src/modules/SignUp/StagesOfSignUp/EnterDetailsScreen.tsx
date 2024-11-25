@@ -6,14 +6,17 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
-import ModalDropdown from "react-native-modal-dropdown"; // Додано бібліотеку
+import ModalDropdown from "react-native-modal-dropdown";
 import authStyles from "@/src/common/styles/authStyles";
 import { useRouter } from "expo-router";
 
 const EnterDetailsScreen: React.FC = () => {
   const [birthDate, setBirthDate] = useState<string>("");
-  const [gender, setGender] = useState<string>(""); // Зберігаємо вибраний гендер
+  const [gender, setGender] = useState<string>("");
   const router = useRouter();
 
   const handleContinue = () => {
@@ -26,52 +29,59 @@ const EnterDetailsScreen: React.FC = () => {
   };
 
   return (
-    <View style={authStyles.container}>
-      <Text style={authStyles.headerOne}>CloudyWay</Text>
-      <Text style={authStyles.headerTwo}>Enter your details</Text>
-
-      <View style={authStyles.inputContainer}>
-        <Text style={authStyles.label}>Data of birth</Text>
-        <TextInput
-          style={authStyles.input}
-          placeholder="DD/MM/YYYY"
-          placeholderTextColor="#aaa"
-          value={birthDate}
-          onChangeText={setBirthDate}
-          keyboardType="numeric"
-        />
-      </View>
-
-      <View style={authStyles.inputContainer}>
-        <Text style={authStyles.label}>Gender</Text>
-        <ModalDropdown
-          options={["Male", "Female", "Prefer not to say"]} // Варіанти вибору
-          defaultValue="Select your gender" // Текст за замовчуванням
-          style={dropdownStyles.dropdown} // Стиль кнопки
-          textStyle={
-            gender
-              ? dropdownStyles.dropdownTextSelected
-              : dropdownStyles.dropdownText
-          } // Стиль тексту
-          dropdownStyle={dropdownStyles.dropdownList} // Стиль випадаючого списку
-          dropdownTextStyle={dropdownStyles.dropdownItemText} // Стиль пунктів
-          onSelect={(index, value) => setGender(value)} // Зберігаємо вибір
-        />
-      </View>
-
-      <TouchableOpacity
-        style={authStyles.signInButton}
-        onPress={handleContinue}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={authStyles.container}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text style={authStyles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={authStyles.headerOne}>CloudyWay</Text>
+        <Text style={authStyles.headerTwo}>Enter your details</Text>
+
+        <View style={authStyles.inputContainer}>
+          <Text style={authStyles.label}>Date of birth</Text>
+          <TextInput
+            style={authStyles.input}
+            placeholder="DD/MM/YYYY"
+            placeholderTextColor="#aaa"
+            value={birthDate}
+            onChangeText={setBirthDate}
+            keyboardType="numeric"
+          />
+        </View>
+
+        <View style={authStyles.inputContainer}>
+          <Text style={authStyles.label}>Gender</Text>
+          <ModalDropdown
+            options={["Male", "Female", "Prefer not to say"]}
+            defaultValue="Select your gender"
+            style={dropdownStyles.dropdown}
+            textStyle={
+              gender
+                ? dropdownStyles.dropdownTextSelected
+                : dropdownStyles.dropdownText
+            }
+            dropdownStyle={dropdownStyles.dropdownList}
+            dropdownTextStyle={dropdownStyles.dropdownItemText}
+            onSelect={(index, value) => setGender(value)}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={authStyles.signInButton}
+          onPress={handleContinue}
+        >
+          <Text style={authStyles.buttonText}>Continue</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const dropdownStyles = StyleSheet.create({
   dropdown: {
-    // Контейнер для кнопки з випадаючим списком
     backgroundColor: "#fff",
     borderRadius: 9,
     padding: 10,
@@ -82,8 +92,7 @@ const dropdownStyles = StyleSheet.create({
     position: "relative",
   },
   dropdownText: {
-    // Текст кнопки
-    color: "#aaa", // Сірий текст для "placeholder"
+    color: "#aaa",
     fontSize: 16,
   },
   dropdownList: {
@@ -92,19 +101,18 @@ const dropdownStyles = StyleSheet.create({
     marginLeft: -11,
     right: 36,
     maxHeight: 130,
-    overflow: "scroll", // прокрутка, якщо список великий
+    overflow: "scroll",
     backgroundColor: "white",
-    borderTopLeftRadius: 0, // Без заокруглення верхнього лівого кута
+    borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
-    borderBottomLeftRadius: 8, // Заокруглення нижнього лівого кута
+    borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderWidth: 1,
     borderColor: "#ddd",
     zIndex: 1,
-    paddingTop: 0, // додатковий відступ для початку списку
+    paddingTop: 0,
   },
   dropdownItemText: {
-    // Текст кожного пункту списку
     fontSize: 16,
     color: "#000",
     padding: 10,
@@ -114,4 +122,5 @@ const dropdownStyles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
 export default EnterDetailsScreen;
