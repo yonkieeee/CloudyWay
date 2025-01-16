@@ -146,7 +146,7 @@ const AuthScreen: React.FC = () => {
             </Animated.View>
 
             <Image
-                source={{uri: "https://i.postimg.cc/T1vSm65G/2024-10-29-190624.png"}}
+                source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Opossum_2.jpg/800px-Opossum_2.jpg"}}
                 style={{width: 390, height: 300, marginTop: 20}}
             />
 
