@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   Alert,
   TextInput,
@@ -19,6 +18,7 @@ const AuthScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isPlusVisible, setIsPlusVisible] = useState(false)
   const searchWidth = useState(new Animated.Value(90))[0];
   const router = useRouter();
 
@@ -92,9 +92,13 @@ const AuthScreen: React.FC = () => {
     router.push("/profile");
   };
 
-  const Plus = (): void => {
-    Alert.alert(" Add");
-  };
+  const openPlus = (): void => {
+    setIsPlusVisible(true);
+  }
+
+  const closePlus = (): void => {
+    setIsPlusVisible(false);
+  }
 
   return (
     <View style={styles.container}>
@@ -167,7 +171,7 @@ const AuthScreen: React.FC = () => {
         <Icon name="user" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.plusButton} onPress={Plus}>
+      <TouchableOpacity style={styles.plusButton} onPress={openPlus}>
         <Icon name="plus" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
@@ -182,7 +186,7 @@ const AuthScreen: React.FC = () => {
         onRequestClose={closeMenu}
       >
         <View style={styles.menuContainer}>
-          <TouchableOpacity onPress={closeMenu} style={styles.closeButton}>
+          <TouchableOpacity onPress={closeMenu} style={styles.closeButtonMenu}>
             <Icon name="times" size={25} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.menuTitle}>Menu</Text>
@@ -208,6 +212,37 @@ const AuthScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </Modal>
+
+      <Modal
+          visible={isPlusVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={closePlus}
+      >
+        <View style={styles.plusContainer}>
+          <TouchableOpacity onPress={closePlus} style={styles.closeButtonAdd}>
+            <Icon name="times" size={25} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Add new picture</Text>
+          <TouchableOpacity style={styles.photoBox}>
+            <Icon name="plus" size={80} color="#aaa" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.placeButton} disabled={true}> {/* Створюємо кнопку "Place", але не клікабельну */}
+            <Text style={styles.placeButtonText}>Place</Text>
+          </TouchableOpacity>
+          <TextInput
+              style={[styles.input, styles.noteInput]}
+              placeholder="Add a note..."
+              placeholderTextColor="#ccc"
+              multiline
+          />
+          <TouchableOpacity style={styles.saveButton}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+
     </View>
   );
 };
@@ -298,6 +333,79 @@ const styles = StyleSheet.create({
     left: "40%", // Відступ від лівого краю
     transform: [{ translateX: 90 }], // Зсув вправо для кнопки
   },
+  plusContainer: {
+    flex: 0.5, // Флекс контейнер, що займає весь простір
+    backgroundColor: "rgba(3, 14, 56, 0.98)", // Темний фон для меню
+    justifyContent: "center", // Вертикальне вирівнювання по центру
+    alignItems: "center", // Горизонтальне вирівнювання по центру
+    marginHorizontal: 20, // Додано відступи по боках
+    borderRadius: 10, // Заокруглені кути для елегантного вигляду
+    top: 210 // Відступ від верхнього краю
+  },
+  modalTitle:{
+    fontSize:25, // Розмір шрифта
+    color: "#fff", // Колір назви
+    fontWeight: "bold", // Жирний шрифт
+    top: 10,
+    textAlign: "center",
+  },
+  photoBox: {
+    width: 200, // Ширина кнопки
+    height: 200, // Висота кнопки
+    backgroundColor: "#fff", // Фон кнопки для додавання фото
+    borderRadius: 0, // Заокруглені кути для кнопки
+    justifyContent: "center", // Вертикальне вирівнювання по центру
+    alignItems: "center", // Горизонтальне вирівнювання по центру
+    marginBottom: 20,
+    top: 17
+  },
+  input: {
+    width: "80%", // Ширина кнопки
+    height: 20, // Висота кнопки
+    backgroundColor: "#fff", // фон
+    borderRadius: 9, // Заокруглені кути для кнопки
+    paddingHorizontal: 14, // Відступи по горизонталі
+    paddingVertical:10 , // Відступи по верикалі
+    fontSize: 16,
+    color: "#000",
+    marginBottom: 20,
+    top: 10,
+  },
+  noteInput: {
+    height: 65, // Висота
+    textAlignVertical: "top",
+  },
+  placeButton: {
+    width: "80%", // Ширина кнопки
+    height: 33, // Висота кнопки
+    backgroundColor: "#fff", // Колір фону кнопки
+    borderRadius: 6, // Заокруглені кути
+    justifyContent: "center", // Вертикальне вирівнювання по центру
+    alignItems: "center", // Горизонтальне вирівнювання по центру
+    marginBottom: 1, // Відступ знизу
+    top: 5,
+  },
+
+  placeButtonText: {
+    fontSize: 18, // Розмір шрифта
+    color: "#030E38", // Колір тексту
+    fontWeight: "bold", // Жирний шрифт
+  },
+  saveButton: {
+    width: "60%", // Ширина кнопки
+    height: 50, // Висота кнопки
+    backgroundColor: "#05092d",
+    borderRadius: 10, // Заокруглені кути для кнопки
+    justifyContent: "center", // Вертикальне вирівнювання по центру
+    alignItems: "center", // Горизонтальне вирівнювання по центру
+    marginTop: 5,
+    bottom:8,
+  },
+  saveButtonText: {
+    color: "#fff", // Колір кнопки
+    fontSize: 18, // Розмір шрифта для кнопки
+    fontWeight: "bold", // Жирний шрифт
+  },
   modalOverlay: {
     flex: 1, // Флекс контейнер, що займає весь простір
     backgroundColor: "rgba(0, 0, 0, 0.5)", // Напівпрозорий фон
@@ -307,7 +415,7 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     flex: 1, // Флекс контейнер, що займає весь простір
-    backgroundColor: "rgba(3, 14, 56, 0.93)", // Темний фон для меню
+    backgroundColor: "rgba(3, 14, 56, 0.97)", // Темний фон для меню
     justifyContent: "center", // Вертикальне вирівнювання по центру
     alignItems: "center", // Горизонтальне вирівнювання по центру
     padding: 5, // Відступи для вмісту меню
@@ -331,10 +439,17 @@ const styles = StyleSheet.create({
     fontSize: 20, // Розмір шрифта для тексту елементів меню
     color: "#fff", // Колір тексту елементів меню
   },
-  closeButton: {
+  closeButtonMenu: {
     position: "absolute", // Абсолютне позиціювання
     top: 50, // Відступ від верхнього краю
     right: 10, // Відступ від правого краю
+    padding: 10, // Відступи для кнопки закриття
+    color: "#84B0E1", // Колір для кнопки закриття
+  },
+  closeButtonAdd: {
+    position: "absolute", // Абсолютне позиціювання
+    top: 3, // Відступ від верхнього краю
+    right: 5, // Відступ від правого краю
     padding: 10, // Відступи для кнопки закриття
     color: "#84B0E1", // Колір для кнопки закриття
   },
