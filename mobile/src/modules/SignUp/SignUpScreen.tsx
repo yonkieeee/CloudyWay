@@ -4,6 +4,7 @@ import authStyles from "@/src/common/styles/authStyles";
 import { useRouter } from "expo-router";
 import { getAuth, createUserWithEmailAndPassword } from "@firebase/auth";
 import { firebaseSDK } from "@/FirebaseConfig";
+import axios from "axios";
 
 const SignUpScreen: React.FC = () => {
   const [username, setUsername] = useState<string>(""); // Define username here
@@ -14,13 +15,56 @@ const SignUpScreen: React.FC = () => {
   const auth = getAuth(firebaseSDK);
 
   const handleSignUp = async () => {
+    if (createPassword !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match!");
+      return;
+    }
+
     try {
-      await createUserWithEmailAndPassword(auth, email, confirmPassword);
-      // Alert.alert("Success", "Account created successfully!");
-      router.push("/addLocation");
-    } catch (e) {
-      console.log("@sign-up-error", e);
-      Alert.alert("Error", "Some error occurred...");
+      // Реєстрація у Firebase
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        createPassword, // Використовуємо основний пароль
+      );
+      const user = userCredential.user;
+
+      // Відправляємо дані на бекенд Spring Boot
+      const response = await axios.post(
+        "http://13.60.155.25:8080/auth",
+        {
+          uid: user.uid,
+          username: username,
+          email: user.email,
+          password: createPassword, // Використовуємо createPassword, а не confirmPassword
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      // Перевіряємо відповідь сервера
+      if (response.status === 200) {
+        Alert.alert("Success", "User created successfully!");
+
+        // Переходимо до екрану введення додаткових даних
+        router.push({ pathname: "/details", params: { uid: user.uid } });
+      } else {
+        Alert.alert("Error", response.data);
+      }
+    } catch (error) {
+      console.error("@sign-up-error", error);
+
+      // Виводимо детальну інформацію про помилку
+      if (axios.isAxiosError(error) && error.response) {
+        Alert.alert("Error", error.response.data || "An error occurred.");
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "An unknown error occurred.");
+      }
     }
   };
 
