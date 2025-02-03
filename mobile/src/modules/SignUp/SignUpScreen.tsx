@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { getAuth, createUserWithEmailAndPassword } from "@firebase/auth";
 import { firebaseSDK } from "@/FirebaseConfig";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignUpScreen: React.FC = () => {
   const [username, setUsername] = useState<string>(""); // Define username here
@@ -13,6 +14,15 @@ const SignUpScreen: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const router = useRouter();
   const auth = getAuth(firebaseSDK);
+
+  const saveUid = async (uid: string) => {
+    try {
+      await AsyncStorage.setItem("@uid", uid); // Save UID in AsyncStorage
+      console.log("UID saved successfully");
+    } catch (e) {
+      console.error("Failed to save UID:", e);
+    }
+  };
 
   const handleSignUp = async () => {
     if (createPassword !== confirmPassword) {
@@ -28,6 +38,9 @@ const SignUpScreen: React.FC = () => {
         createPassword, // Використовуємо основний пароль
       );
       const user = userCredential.user;
+
+      // Зберігаємо UID в AsyncStorage
+      await saveUid(user.uid);
 
       // Відправляємо дані на бекенд Spring Boot
       const response = await axios.post(
