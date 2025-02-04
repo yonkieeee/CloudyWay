@@ -10,4 +10,5 @@ export const ROUTES = {
   forgotPasswordSend: "forgotPasswordSend",
   addLocation: "addLocation",
   details: "details",
+  resetPassword: "resetPassword",
 };

@@ -46,7 +46,6 @@ const EnterDetailsScreen: React.FC = () => {
           gender: gender,
         };
 
-        // Запит до сервера для оновлення інформації користувача
         const response = await fetch(
           `http://13.60.155.25:8080/auth/change-user?uid=${uid}`,
           {
@@ -58,11 +57,9 @@ const EnterDetailsScreen: React.FC = () => {
           },
         );
 
-        // Логування для налагодження
         console.log("Response status:", response.status);
         console.log("Response body:", await response.text());
 
-        // Перевірка на успішний запит
         if (response.ok) {
           Alert.alert("Success", "User updated");
           router.push("/addLocation");

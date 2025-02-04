@@ -8,7 +8,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignUpScreen: React.FC = () => {
-  const [username, setUsername] = useState<string>(""); // Define username here
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [createPassword, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -35,21 +35,19 @@ const SignUpScreen: React.FC = () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        createPassword, // Використовуємо основний пароль
+        createPassword,
       );
       const user = userCredential.user;
 
-      // Зберігаємо UID в AsyncStorage
       await saveUid(user.uid);
 
-      // Відправляємо дані на бекенд Spring Boot
       const response = await axios.post(
         "http://13.60.155.25:8080/auth",
         {
           uid: user.uid,
           username: username,
           email: user.email,
-          password: createPassword, // Використовуємо createPassword, а не confirmPassword
+          password: createPassword,
         },
         {
           headers: {
@@ -58,11 +56,9 @@ const SignUpScreen: React.FC = () => {
         },
       );
 
-      // Перевіряємо відповідь сервера
       if (response.status === 200) {
         Alert.alert("Success", "User created successfully!");
 
-        // Переходимо до екрану введення додаткових даних
         router.push({ pathname: "/details", params: { uid: user.uid } });
       } else {
         Alert.alert("Error", response.data);
@@ -70,7 +66,6 @@ const SignUpScreen: React.FC = () => {
     } catch (error) {
       console.error("@sign-up-error", error);
 
-      // Виводимо детальну інформацію про помилку
       if (axios.isAxiosError(error) && error.response) {
         Alert.alert("Error", error.response.data || "An error occurred.");
       } else if (error instanceof Error) {

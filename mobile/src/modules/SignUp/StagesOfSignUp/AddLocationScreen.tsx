@@ -47,7 +47,7 @@ const AddLocationScreen: React.FC = () => {
 
         // Запит до сервера для оновлення локації користувача
         const response = await fetch(
-          `http://13.60.155.25:8080/auth/change-user?uid=${uid}`, // Запит для оновлення локації
+          `http://13.60.155.25:8080/auth/change-user?uid=${uid}`,
           {
             method: "PUT",
             headers: {
@@ -57,14 +57,12 @@ const AddLocationScreen: React.FC = () => {
           },
         );
 
-        // Логування для налагодження
         console.log("Response status:", response.status);
         console.log("Response body:", await response.text());
 
-        // Перевірка на успішний запит
         if (response.ok) {
           Alert.alert("Success", "Location updated successfully");
-          router.push("/map"); // Перехід на наступний екран (наприклад, на екран 'nextScreen')
+          router.push("/map");
         } else {
           const error = await response.json();
           alert(

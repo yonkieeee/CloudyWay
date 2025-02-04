@@ -31,13 +31,11 @@ const ForgotPasswordScreen: React.FC = () => {
 
       Alert.alert("Success", "OTP sent successfully.");
 
-      // ✅ Переконлива навігація: Переконуємося, що маршрут існує
       router.push({
         pathname: "/forgotPasswordSend",
         params: { identifier },
       });
     } catch (error) {
-      // ✅ Виправлена обробка помилки TypeScript (TS18046)
       const errorMessage =
         error instanceof Error ? error.message : "Something went wrong";
       setError(errorMessage);
