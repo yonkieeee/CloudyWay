@@ -2,31 +2,45 @@ import React, { useState } from "react";
 import { Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import authStyles from "@/src/common/styles/authStyles";
-import { getAuth, sendPasswordResetEmail } from "@firebase/auth";
-import { firebaseSDK } from "@/FirebaseConfig";
 
 const ForgotPasswordScreen: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [emailError, setEmailError] = useState<string>("");
+  const [identifier, setIdentifier] = useState<string>(""); // Email або username
+  const [error, setError] = useState<string>("");
   const router = useRouter();
 
-  const handlePasswordReset = async () => {
-    setEmailError("");
+  const handleSendOtp = async () => {
+    setError("");
 
-    if (email === "") {
-      setEmailError("Please enter your email address.");
+    if (!identifier.trim()) {
+      setError("Please enter your email or username.");
       return;
     }
 
-    const auth = getAuth(firebaseSDK);
-
     try {
-      await sendPasswordResetEmail(auth, email);
-      Alert.alert("Success", "Password reset link sent to your email.");
-      router.push("/forgotPasswordSend");
+      const response = await fetch(
+        "http://13.60.155.25:8080/reset-password/send-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier }),
+        },
+      );
+
+      const text = await response.text();
+      if (!response.ok) throw new Error(text || "Something went wrong");
+
+      Alert.alert("Success", "OTP sent successfully.");
+
+      // ✅ Переконлива навігація: Переконуємося, що маршрут існує
+      router.push({
+        pathname: "/forgotPasswordSend",
+        params: { identifier },
+      });
     } catch (error) {
-      console.error("Error resetting password:", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
+      // ✅ Виправлена обробка помилки TypeScript (TS18046)
+      const errorMessage =
+        error instanceof Error ? error.message : "Something went wrong";
+      setError(errorMessage);
     }
   };
 
@@ -36,30 +50,23 @@ const ForgotPasswordScreen: React.FC = () => {
       <Text style={authStyles.headerTwo}>Forgot your password?</Text>
 
       <Text style={authStyles.instructionText}>
-        Enter your registered email below to receive password reset
-        instructions.
+        Enter your email or username to receive a verification code.
       </Text>
 
       <View style={authStyles.inputContainer}>
-        <Text style={authStyles.label}>Email</Text>
+        <Text style={authStyles.label}>Email or Username</Text>
         <TextInput
           style={authStyles.input}
-          placeholder="Enter your email"
+          placeholder="Enter your email or username"
           placeholderTextColor="#aaa"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
+          value={identifier}
+          onChangeText={setIdentifier}
           autoCapitalize="none"
         />
-        {emailError ? (
-          <Text style={authStyles.errorText}>{emailError}</Text>
-        ) : null}
+        {error ? <Text style={authStyles.errorText}>{error}</Text> : null}
       </View>
 
-      <TouchableOpacity
-        style={authStyles.signInButton}
-        onPress={handlePasswordReset}
-      >
+      <TouchableOpacity style={authStyles.signInButton} onPress={handleSendOtp}>
         <Text style={authStyles.buttonText}>Send</Text>
       </TouchableOpacity>
 
