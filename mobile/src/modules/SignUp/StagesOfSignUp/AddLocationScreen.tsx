@@ -8,18 +8,73 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Alert,
 } from "react-native";
 import authStyles from "@/src/common/styles/authStyles";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
 
 const AddLocationScreen: React.FC = () => {
   const [location, setLocation] = useState<string>("");
   const router = useRouter();
 
-  const handleNext = () => {
+  // Отримання UID з AsyncStorage
+  const getUid = async (): Promise<string | null> => {
+    try {
+      const uid = await AsyncStorage.getItem("@uid");
+      console.log("Fetched UID:", uid); // Для перевірки
+      return uid;
+    } catch (e) {
+      console.error("Failed to fetch UID:", e);
+      return null;
+    }
+  };
+
+  // Обробка натискання кнопки Next
+  const handleNext = async () => {
     if (location) {
-      router.push("/details");
+      try {
+        const uid = await getUid(); // Отримуємо UID з AsyncStorage
+        if (!uid) {
+          alert("User UID not found");
+          return;
+        }
+
+        const userData = {
+          location: location,
+        };
+
+        // Запит до сервера для оновлення локації користувача
+        const response = await fetch(
+          `http://13.60.155.25:8080/auth/change-user?uid=${uid}`, // Запит для оновлення локації
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userData),
+          },
+        );
+
+        // Логування для налагодження
+        console.log("Response status:", response.status);
+        console.log("Response body:", await response.text());
+
+        // Перевірка на успішний запит
+        if (response.ok) {
+          Alert.alert("Success", "Location updated successfully");
+          router.push("/map"); // Перехід на наступний екран (наприклад, на екран 'nextScreen')
+        } else {
+          const error = await response.json();
+          alert(
+            "Error updating location: " + error.message ||
+              "Failed to update location",
+          );
+        }
+      } catch (error) {
+        alert("An unknown error occurred");
+      }
     } else {
       alert("Please add a location");
     }
