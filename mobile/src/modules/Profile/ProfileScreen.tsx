@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, ImageBackground } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
 
 
-
 const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
-    console.log("ProfileHeader userData:", userData);
     return (
-        <View style={styles.header}>
+        <ImageBackground
+            source={require("../../../assets/images/background.png")}
+            style={styles.header}
+        >
             <TouchableOpacity style={styles.backButton} onPress={() => console.log("Back button pressed")}>
                 <Icon name="arrow-left" size={20} color="#fff" />
             </TouchableOpacity>
@@ -32,14 +33,13 @@ const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
                 </View>
                 <View style={styles.infoBox}>
                     <Text style={styles.infoTitle}>Map Progress</Text>
-                    <Text style={styles.infoContent}>{userData?.mapProgress ?? "Data not available"}</Text>
+                    <Text style={styles.infoContent}>{userData?.mapProgress ?? "0%"}</Text>
                 </View>
             </View>
             <View style={styles.separator}></View>
-        </View>
+        </ImageBackground>
     );
 };
-
 
 interface UserProfile {
     name: string | null;
@@ -47,11 +47,9 @@ interface UserProfile {
     visitedPlaces: number | null;
     mapProgress: string | null;
     album: Array<any>;
-    map: string;
+    achievements: string;
     statistics: {
-        west: string | null;
-        center: string | null;
-        east: string | null;
+        progress: string | null;
     };
 }
 
@@ -64,11 +62,11 @@ const ProfileScreen = () => {
         try {
             const response = await axios.get(`http://13.60.155.25:8080/auth?uid=${uid}`);
             console.log("Response from server:", response.data);
-            setUserData(response.data); // Оновлюємо дані користувача з відповіді сервера
+            setUserData(response.data);
         } catch (error) {
             console.error("Error fetching data from server:", error);
         }
-    };
+    }
 
     const getProfileData = async () => {
         try {
@@ -82,7 +80,7 @@ const ProfileScreen = () => {
             const user = auth.currentUser;
 
             if (user) {
-                const userName = user.displayName ?? "No Name"; // This might be used as fallback if needed
+                const userName = user.displayName ?? "No Name";
                 const userEmail = user.email;
 
                 const uid = user.uid;
@@ -97,9 +95,10 @@ const ProfileScreen = () => {
                     visitedPlaces: response.data.visitedPlaces ?? 0,
                     mapProgress: response.data.mapProgress ?? "0%",
                     album: response.data.album ?? [],
-                    map: response.data.map ?? "",
-                    statistics: response.data.statistics ?? { west: null, center: null, east: null },
+                    achievements: response.data.achievements ?? "Achievements section is empty for now.",
+                    statistics: response.data.statistics ?? { progress: "0%" },
                 }));
+
             }
 
             setLoading(false);
@@ -109,9 +108,11 @@ const ProfileScreen = () => {
         }
     };
 
+
     useEffect(() => {
         getProfileData();
     }, []);
+
 
     if (loading) {
         return (
@@ -125,15 +126,10 @@ const ProfileScreen = () => {
         switch (activeTab) {
             case "Album":
                 return <Album album={userData?.album || []} />;
-            case "Map":
-                return (
-                    <Map
-                        map={userData?.map || ""}
-                        mapProgress={userData?.mapProgress || "Data not available"}
-                    />
-                );
+            case "Achievements":
+                return <Achievements achievements={userData?.achievements || "Achievements section is empty for now."} />;
             case "Statistics":
-                return <Statistics statistics={userData?.statistics || { west: null, center: null, east: null }} />;
+                return <Statistics statistics={userData?.statistics || { progress: null }} />;
             default:
                 return <Album album={userData?.album || []} />;
         }
@@ -144,22 +140,15 @@ const ProfileScreen = () => {
             {userData && <ProfileHeader userData={userData} />}
             <View style={styles.separator} />
             <View style={styles.tabButtons}>
-                <TouchableOpacity
-                    style={[styles.tabButton, activeTab === "Album" && styles.activeTabButton]}
-                    onPress={() => setActiveTab("Album")}
-                >
+                <TouchableOpacity style={[styles.tabButton, activeTab === "Album" && styles.activeTabButton]} onPress={() => setActiveTab("Album")}>
                     <Icon name="book" size={24} color={activeTab === "Album" ? "#030E38" : "#aaa"} />
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.tabButton, activeTab === "Map" && styles.activeTabButton]}
-                    onPress={() => setActiveTab("Map")}
-                >
-                    <Icon name="trophy" size={24} color={activeTab === "Map" ? "#030E38" : "#aaa"} />
+                    style={[styles.tabButton, activeTab === "Achievements" && styles.activeTabButton]} onPress={() => setActiveTab("Achievements")}>
+                    <Icon name="trophy" size={24} color={activeTab === "Achievements" ? "#030E38" : "#aaa"} />
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tabButton, activeTab === "Statistics" && styles.activeTabButton]}
-                    onPress={() => setActiveTab("Statistics")}
-                >
+
+                <TouchableOpacity style={[styles.tabButton, activeTab === "Statistics" && styles.activeTabButton]} onPress={() => setActiveTab("Statistics")}>
                     <Icon name="bar-chart" size={24} color={activeTab === "Statistics" ? "#030E38" : "#aaa"} />
                 </TouchableOpacity>
             </View>
@@ -170,42 +159,37 @@ const ProfileScreen = () => {
 
 const Album = ({ album }: { album: Array<any> }) => (
     <View style={styles.tabContent}>
-        {album.length > 0 ? (
-            <View style={styles.grid}>
-                {album.map((photo, index) => (
-                    <View key={index} style={styles.photoBox}></View>
-                ))}
-            </View>
-        ) : (
-            <View style={styles.addPhotoBox}>
-                <Text style={styles.addPhotoText}>Add photos</Text>
-            </View>
-        )}
+        <View style={styles.grid}>
+            {Array(6).fill(null).map((_, index) => (
+                <View key={index} style={styles.photoBox}></View>
+            ))}
+        </View>
     </View>
 );
 
-const Map = ({ map, mapProgress }: { map: string; mapProgress: string | null }) => {
-    const progress = mapProgress ? mapProgress : "0%";
-
+const Achievements = ({ achievements }: { achievements: string }) => {
+    console.log("Achievements prop:", achievements);
     return (
         <View style={styles.tabContent}>
-            {map ? (
-                <Image source={{ uri: map }} style={styles.mapImage} />
-            ) : (
-                <Text style={styles.mapText}>Map not available</Text>
-            )}
-            <Text style={styles.mapText}>Progress: {progress}</Text>
+            <Text style={styles.mapText}>{achievements || "Achievements section is empty for now."}</Text>
         </View>
     );
 };
 
-const Statistics = ({ statistics }: { statistics: { west: string | null; center: string | null; east: string | null } }) => (
+
+const Statistics = ({ statistics }: { statistics: { progress: string | null } }) => (
     <View style={styles.tabContent}>
-        <Text style={styles.statisticsText}>West: {statistics.west || "Data not available"}</Text>
-        <Text style={styles.statisticsText}>Center: {statistics.center || "Data not available"}</Text>
-        <Text style={styles.statisticsText}>East: {statistics.east || "Data not available"}</Text>
+        <ImageBackground
+            source={require("../../../assets/images/map_statistic.png")}
+            style={styles.statisticsBackground}
+        >
+            <View style={styles.statisticsContent}>
+                <Text style={styles.statisticsText}>Progress: {statistics.progress || "0%"}</Text>
+            </View>
+        </ImageBackground>
     </View>
 );
+
 
 const styles = StyleSheet.create({
     container: {
@@ -213,33 +197,32 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
     },
     header: {
-        backgroundColor: "#273466",
+        flex: 1,
         padding: 5,
         paddingBottom: 10,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
         alignItems: "center",
+        bottom: 55,
     },
     profileName: {
-        fontSize: 18,
+        fontSize: 20,
         color: "#fff",
         fontWeight: "bold",
-        top: 18,
+        top: 70,
     },
     backButton: {
         position: "absolute",
         left: 20,
-        top: 20,
+        top: 63,
     },
     menuButton: {
         position: "absolute",
         right: 20,
-        top: 20,
+        top: 65,
     },
     avatarContainer: {
         marginTop: 20,
         marginBottom: 10,
-        top: 20,
+        top: 85,
     },
     avatar: {
         width: 150,
@@ -251,7 +234,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-around",
         width: "100%",
-        marginTop: 20,
+        marginTop: 83,
     },
     infoBox: {
         padding: 15,
@@ -309,11 +292,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#ccc",
         borderRadius: 10,
     },
-    mapImage: {
-        width: "80%",
-        height: 200,
-        marginBottom: 10,
-    },
     mapText: {
         fontSize: 16,
         fontWeight: "bold",
@@ -322,22 +300,24 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginVertical: 5,
     },
+    statisticsBackground: {
+        width: 235,
+        height: 160,
+        resizeMode: "cover",
+        marginBottom: 20,
+        bottom: 20,
+    },
+    statisticsContent: {
+        padding: 10,
+        borderRadius: 10,
+        position: "absolute",
+        top: 180,
+        left: 55
+    },
     loadingContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-    },
-    addPhotoBox: {
-        width: "80%",
-        height: 100,
-        backgroundColor: "#ccc",
-        borderRadius: 10,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    addPhotoText: {
-        fontSize: 16,
-        color: "#030E38",
     },
 });
 
