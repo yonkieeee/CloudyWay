@@ -18,7 +18,7 @@ const AuthScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [isPlusVisible, setIsPlusVisible] = useState(false)
+  const [isPlusVisible, setIsPlusVisible] = useState(false);
   const searchWidth = useState(new Animated.Value(90))[0];
   const router = useRouter();
 
@@ -94,16 +94,24 @@ const AuthScreen: React.FC = () => {
 
   const openPlus = (): void => {
     setIsPlusVisible(true);
-  }
+  };
 
   const closePlus = (): void => {
     setIsPlusVisible(false);
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Map of Ukraine</Text>
-
+    <View
+      style={{
+        flex: 1,
+        marginTop: 0,
+        paddingTop: 0,
+        backgroundColor: "transparent",
+        borderWidth: 0,
+        margin: 0, // прибирає відступи
+        padding: 0, // прибирає відступи
+      }}
+    >
       <TouchableOpacity
         style={[
           styles.barsButton,
@@ -119,8 +127,8 @@ const AuthScreen: React.FC = () => {
           styles.searchButton,
           {
             width: searchWidth,
-            backgroundColor: isSearching ? "#ffffff" : "#84B0E1",
-            top: isSearching ? 10 : 0,
+            backgroundColor: isSearching ? "#ffffff" : "transparent",
+            top: isSearching ? 15 : 17,
             zIndex: 1,
             position: "absolute",
             right: 3,
@@ -155,7 +163,7 @@ const AuthScreen: React.FC = () => {
         )}
       </Animated.View>
       <MapView
-        style={{ width: 390, height: 300, marginTop: 20 }}
+        style={{ width: 390, height: 300, marginTop: 20, flex: 1 }}
         initialRegion={{
           latitude: 48.3794, // Центр України (широта)
           longitude: 31.1656, // Центр України (довгота)
@@ -171,7 +179,10 @@ const AuthScreen: React.FC = () => {
         <Icon name="user" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.plusButton} onPress={openPlus}>
+      <TouchableOpacity
+        style={[styles.commonButtonStyle, { position: "absolute" }]}
+        onPress={openPlus}
+      >
         <Icon name="plus" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
@@ -214,10 +225,10 @@ const AuthScreen: React.FC = () => {
       </Modal>
 
       <Modal
-          visible={isPlusVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={closePlus}
+        visible={isPlusVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closePlus}
       >
         <View style={styles.plusContainer}>
           <TouchableOpacity onPress={closePlus} style={styles.closeButtonAdd}>
@@ -227,22 +238,22 @@ const AuthScreen: React.FC = () => {
           <TouchableOpacity style={styles.photoBox}>
             <Icon name="plus" size={80} color="#aaa" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.placeButton} disabled={true}> {/* Створюємо кнопку "Place", але не клікабельну */}
+          <TouchableOpacity style={styles.placeButton} disabled={true}>
+            {" "}
+            {/* Створюємо кнопку "Place", але не клікабельну */}
             <Text style={styles.placeButtonText}>Place</Text>
           </TouchableOpacity>
           <TextInput
-              style={[styles.input, styles.noteInput]}
-              placeholder="Add a note..."
-              placeholderTextColor="#ccc"
-              multiline
+            style={[styles.input, styles.noteInput]}
+            placeholder="Add a note..."
+            placeholderTextColor="#ccc"
+            multiline
           />
           <TouchableOpacity style={styles.saveButton}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>
       </Modal>
-
-
     </View>
   );
 };
@@ -268,28 +279,28 @@ const styles = StyleSheet.create({
   barsButton: {
     flexDirection: "row", // Напрямок елементів в ряду
     alignItems: "center", // Вирівнювання елементів по вертикалі по центру
-    backgroundColor: "#84B0E1", // Колір фону кнопки
+    backgroundColor: "transparent", // Колір фону кнопки
     paddingVertical: 10, // Відступи по вертикалі
     paddingHorizontal: 20, // Відступи по горизонталі
-    width: 80, // Ширина кнопки
-    height: 60, // Висота кнопки
+    width: 70, // Ширина кнопки
+    height: 70, // Висота кнопки
     borderRadius: 30, // Заокруглені кути
     position: "absolute", // Абсолютне позиціювання
-    top: 0, // Відступ від верхнього краю
-    left: 0, // Відступ від лівого краю
+    top: 10, // Відступ від верхнього краю
+    left: 5, // Відступ від лівого краю
   },
   searchButton: {
     flexDirection: "row", // Напрямок елементів в ряду
     alignItems: "center", // Вирівнювання елементів по вертикалі по центру
     justifyContent: "center", // Вирівнювання елементів по горизонталі по центру
-    backgroundColor: "#84B0E1", // Колір фону кнопки пошуку
+    backgroundColor: "transparent", // Колір фону кнопки пошуку
     paddingVertical: 5, // Відступи по вертикалі
     paddingHorizontal: 10, // Відступи по горизонталі
-    width: 80, // Ширина кнопки пошуку
-    height: 45, // Висота кнопки пошуку
-    borderRadius: 25, // Заокруглені кути
+    width: 60, // Ширина кнопки пошуку
+    height: 60, // Висота кнопки пошуку
+    borderRadius: 30, // Заокруглені кути
     position: "absolute", // Абсолютне позиціювання
-    top: 0, // Відступ від верхнього краю
+    top: 50, // Відступ від верхнього краю
     right: 2, // Відступ від правого краю
     zIndex: 1, // Підвищує пріоритет для кнопки пошуку
   },
@@ -340,10 +351,10 @@ const styles = StyleSheet.create({
     alignItems: "center", // Горизонтальне вирівнювання по центру
     marginHorizontal: 20, // Додано відступи по боках
     borderRadius: 10, // Заокруглені кути для елегантного вигляду
-    top: 210 // Відступ від верхнього краю
+    top: 210, // Відступ від верхнього краю
   },
-  modalTitle:{
-    fontSize:25, // Розмір шрифта
+  modalTitle: {
+    fontSize: 25, // Розмір шрифта
     color: "#fff", // Колір назви
     fontWeight: "bold", // Жирний шрифт
     top: 10,
@@ -357,7 +368,7 @@ const styles = StyleSheet.create({
     justifyContent: "center", // Вертикальне вирівнювання по центру
     alignItems: "center", // Горизонтальне вирівнювання по центру
     marginBottom: 20,
-    top: 17
+    top: 17,
   },
   input: {
     width: "80%", // Ширина кнопки
@@ -365,7 +376,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", // фон
     borderRadius: 9, // Заокруглені кути для кнопки
     paddingHorizontal: 14, // Відступи по горизонталі
-    paddingVertical:10 , // Відступи по верикалі
+    paddingVertical: 10, // Відступи по верикалі
     fontSize: 16,
     color: "#000",
     marginBottom: 20,
@@ -399,7 +410,7 @@ const styles = StyleSheet.create({
     justifyContent: "center", // Вертикальне вирівнювання по центру
     alignItems: "center", // Горизонтальне вирівнювання по центру
     marginTop: 5,
-    bottom:8,
+    bottom: 8,
   },
   saveButtonText: {
     color: "#fff", // Колір кнопки
@@ -456,6 +467,19 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 0, // Відсутність відступу справа для іконки
     color: "#030E38",
+  },
+  commonButtonStyle: {
+    flexDirection: "row", // Напрямок елементів в ряду
+    alignItems: "center", // Вирівнювання іконки по вертикалі
+    justifyContent: "center", // Вирівнювання іконки по горизонталі
+    backgroundColor: "#F6F3EB", // Колір фону для кнопки додавання
+    width: 60, // Ширина кнопки
+    height: 60, // Висота кнопки
+    borderRadius: 30, // Заокруглені кути для кнопки
+    position: "absolute", // Абсолютне позиціювання
+    bottom: 70, // Відступ від нижнього краю
+    left: "40%", // Відступ від лівого краю
+    transform: [{ translateX: 90 }], // Зсув вправо для кнопки
   },
 });
 
