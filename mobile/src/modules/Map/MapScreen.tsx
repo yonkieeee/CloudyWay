@@ -163,7 +163,7 @@ const AuthScreen: React.FC = () => {
         )}
       </Animated.View>
       <MapView
-        style={{ width: 390, height: 300, marginTop: 20, flex: 1 }}
+        style={{ flex: 1 }}
         initialRegion={{
           latitude: 48.3794, // Центр України (широта)
           longitude: 31.1656, // Центр України (довгота)
