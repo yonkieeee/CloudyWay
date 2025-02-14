@@ -32,6 +32,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "plugins": [
+      [
+        "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow CloudyWay to use your location."
+      }
+
+      ]
+    ]
   }
 }

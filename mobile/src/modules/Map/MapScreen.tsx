@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,15 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
+import { async } from "@firebase/util";
+import * as Location from "expo-location";
+
+interface LocationData {
+  latitude: number | null;
+  longitude: number | null;
+  errorMsg?: string;
+}
 
 const AuthScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
@@ -22,6 +30,40 @@ const AuthScreen: React.FC = () => {
   const searchWidth = useState(new Animated.Value(90))[0];
   const router = useRouter();
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [latitude, setLatitude] = useState<number | null>(null);
+
+  const getUserLocation = async (): Promise<void> => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        setErrorMsg("Permission to location was not granted");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync();
+      const { latitude, longitude } = location.coords;
+
+      console.log("lat and log is", latitude, longitude);
+
+      setLatitude(latitude);
+      setLongitude(longitude);
+
+      const response = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      setErrorMsg("Error fetching location");
+    }
+  };
+  useEffect(() => {
+    getUserLocation();
+  }, []);
   const Bars = (): void => {
     setIsMenuVisible(true);
   };
@@ -164,17 +206,28 @@ const AuthScreen: React.FC = () => {
       </Animated.View>
       <MapView
         style={{ flex: 1 }}
-        initialRegion={{
-          latitude: 48.3794, // Центр України (широта)
-          longitude: 31.1656, // Центр України (довгота)
-          latitudeDelta: 8.5, // Масштаб (покриває всю Україну)
-          longitudeDelta: 8.5, // Масштаб (покриває всю Україну)
-        }}
-        scrollEnabled={false} // Заборона прокручування
-        // zoomEnabled={false} // Заборона зміни масштабу
+        region={
+          latitude && longitude
+            ? {
+                latitude,
+                longitude,
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.05,
+              }
+            : {
+                latitude: 48.3794, // Центр України за замовчуванням
+                longitude: 31.1656,
+                latitudeDelta: 8.5,
+                longitudeDelta: 8.5,
+              }
+        }
         rotateEnabled={false} // Заборона повороту
         pitchEnabled={false} // Заборона зміни кута нахилу
-      />
+      >
+        {latitude && longitude && (
+          <Marker coordinate={{ latitude, longitude }} title="Your location" />
+        )}
+      </MapView>
       <TouchableOpacity
         style={[styles.profileButton, { position: "absolute" }]}
         onPress={Profile}
