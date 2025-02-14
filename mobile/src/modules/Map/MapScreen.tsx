@@ -175,7 +175,10 @@ const AuthScreen: React.FC = () => {
         rotateEnabled={false} // Заборона повороту
         pitchEnabled={false} // Заборона зміни кута нахилу
       />
-      <TouchableOpacity style={styles.profileButton} onPress={Profile}>
+      <TouchableOpacity
+        style={[styles.profileButton, { position: "absolute" }]}
+        onPress={Profile}
+      >
         <Icon name="user" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
@@ -186,7 +189,10 @@ const AuthScreen: React.FC = () => {
         <Icon name="plus" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.barsButton} onPress={openMenu}>
+      <TouchableOpacity
+        style={[styles.barsButton, { position: "absolute" }]}
+        onPress={openMenu}
+      >
         <Icon name="bars" size={40} color="black" style={styles.icon} />
       </TouchableOpacity>
 
