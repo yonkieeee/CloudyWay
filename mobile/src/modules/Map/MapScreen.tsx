@@ -12,9 +12,10 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polygon } from "react-native-maps";
 import { async } from "@firebase/util";
 import * as Location from "expo-location";
+import UkraineGeoJSON from "../../common/geo/Ukraine.json";
 
 interface LocationData {
   latitude: number | null;
@@ -33,6 +34,9 @@ const AuthScreen: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [latitude, setLatitude] = useState<number | null>(null);
+  const [coordinates, setCoordinates] = useState<
+    { latitude: number; longitude: number }[]
+  >([]);
 
   const getUserLocation = async (): Promise<void> => {
     try {
@@ -61,8 +65,42 @@ const AuthScreen: React.FC = () => {
       setErrorMsg("Error fetching location");
     }
   };
+
+  // Функція отримання координат України
+  const loadUkraineBorders = () => {
+    if (!UkraineGeoJSON?.features?.length) {
+      console.warn("No features found in GeoJSON");
+      return;
+    }
+
+    const geoData = UkraineGeoJSON.features[0].geometry;
+
+    if (geoData.type !== "Polygon" && geoData.type !== "MultiPolygon") {
+      console.error("Invalid GeoJSON format: expected Polygon or MultiPolygon");
+      return;
+    }
+
+    let rawCoords: any =
+      geoData.type === "MultiPolygon"
+        ? geoData.coordinates[0][0] // MultiPolygon має ще один рівень вкладеності
+        : geoData.coordinates[0];
+
+    if (!Array.isArray(rawCoords)) {
+      console.error("Invalid coordinates format in GeoJSON");
+      return;
+    }
+
+    const formattedCoords = rawCoords.map((point: number[]) => ({
+      latitude: point[1],
+      longitude: point[0],
+    }));
+
+    setCoordinates(formattedCoords); // ✅ Тепер setCoordinates існує
+  };
+
   useEffect(() => {
     getUserLocation();
+    loadUkraineBorders();
   }, []);
   const Bars = (): void => {
     setIsMenuVisible(true);
@@ -226,6 +264,15 @@ const AuthScreen: React.FC = () => {
       >
         {latitude && longitude && (
           <Marker coordinate={{ latitude, longitude }} title="Your location" />
+        )}
+        {/* Полігон для меж України */}
+        {coordinates.length > 0 && (
+          <Polygon
+            coordinates={coordinates}
+            strokeWidth={2}
+            strokeColor="blue"
+            fillColor="rgba(0, 0, 255, 0.3)" // Напівпрозорий колір заливки
+          />
         )}
       </MapView>
       <TouchableOpacity
