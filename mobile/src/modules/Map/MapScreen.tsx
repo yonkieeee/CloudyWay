@@ -13,7 +13,6 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
-import { async } from "@firebase/util";
 import * as Location from "expo-location";
 import UkraineGeoJSON from "../../common/geo/Ukraine.json";
 
@@ -21,6 +20,19 @@ interface LocationData {
   latitude: number | null;
   longitude: number | null;
   errorMsg?: string;
+}
+
+interface MarkerData {
+  houseNumber: string;  // Номер будинку
+  street: string;       // Вулиця
+  city: string;         // Місто
+  state: string;        // Область
+  postalCode: string;   // Поштовий код
+  country: string;      // Країна
+  latitude?: number;    // Широта (не обов'язково)
+  longitude?: number;   // Довгота (не обов'язково)
+  name?: string;        // Назва місця (не обов'язково)
+  address?: string;     // Адреса місця (не обов'язково)
 }
 
 const AuthScreen: React.FC = () => {
@@ -35,8 +47,86 @@ const AuthScreen: React.FC = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [coordinates, setCoordinates] = useState<
-    { latitude: number; longitude: number }[]
+      { latitude: number; longitude: number }[]
   >([]);
+
+  // Статичні маркери для демонстрації
+  const staticMarkers: MarkerData[] = [
+    {
+      houseNumber: "1",
+      street: "Sofiivska St.",
+      city: "Kyiv",
+      state: "Kyiv",
+      postalCode: "01001",
+      country: "Ukraine",
+      latitude: 50.4501,
+      longitude: 30.5200,
+      name: "Софійський собор",
+      address: "Sofiivska St., Kyiv, Ukraine",
+    },
+    {
+      houseNumber: "2",
+      street: "Rynok Square",
+      city: "Lviv",
+      state: "Lviv",
+      postalCode: "79000",
+      country: "Ukraine",
+      latitude: 49.8397,
+      longitude: 24.0297,
+      name: "Площа Ринок",
+      address: "Rynok Square, Lviv, Ukraine",
+    },
+    {
+      houseNumber: "3",
+      street: "Potiomkin St.",
+      city: "Odessa",
+      state: "Odessa",
+      postalCode: "65000",
+      country: "Ukraine",
+      latitude: 46.4850,
+      longitude: 30.7350,
+      name: "Потьомкінські сходи",
+      address: "Potiomkin Stairs, Odessa, Ukraine",
+    },
+    {
+      houseNumber: "4",
+      street: "Svobody Square",
+      city: "Kharkiv",
+      state: "Kharkiv",
+      postalCode: "61000",
+      country: "Ukraine",
+      latitude: 49.9935,
+      longitude: 36.2304,
+      name: "Площа Свободи",
+      address: "Svobody Square, Kharkiv, Ukraine",
+    },
+    {
+      houseNumber: "5",
+      street: "Kyivska St.",
+      city: "Chernihiv",
+      state: "Chernihiv",
+      postalCode: "14000",
+      country: "Ukraine",
+      latitude: 51.8051,
+      longitude: 31.2890,
+      name: "Чернігівський історичний музей",
+      address: "Kyivska St., Chernihiv, Ukraine",
+    },
+    {
+      houseNumber: "6",
+      street: "Khreshchatyk St.",
+      city: "Kyiv",
+      state: "Kyiv",
+      postalCode: "01001",
+      country: "Ukraine",
+      latitude: 50.4500,
+      longitude: 30.5200,
+      name: "Хрещатик",
+      address: "Khreshchatyk St., Kyiv, Ukraine",
+    },
+  ];
+
+  const [markers, setMarkers] = useState<MarkerData[]>(staticMarkers); // Використовуємо статичні маркери
 
   const getUserLocation = async (): Promise<void> => {
     try {
@@ -81,9 +171,9 @@ const AuthScreen: React.FC = () => {
     }
 
     let rawCoords: any =
-      geoData.type === "MultiPolygon"
-        ? geoData.coordinates[0][0] // MultiPolygon має ще один рівень вкладеності
-        : geoData.coordinates[0];
+        geoData.type === "MultiPolygon"
+            ? geoData.coordinates[0][0] // MultiPolygon має ще один рівень вкладеності
+            : geoData.coordinates[0];
 
     if (!Array.isArray(rawCoords)) {
       console.error("Invalid coordinates format in GeoJSON");
@@ -102,6 +192,7 @@ const AuthScreen: React.FC = () => {
     getUserLocation();
     loadUkraineBorders();
   }, []);
+
   const Bars = (): void => {
     setIsMenuVisible(true);
   };
@@ -181,186 +272,201 @@ const AuthScreen: React.FC = () => {
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        marginTop: 0,
-        paddingTop: 0,
-        backgroundColor: "transparent",
-        borderWidth: 0,
-        margin: 0, // прибирає відступи
-        padding: 0, // прибирає відступи
-      }}
-    >
-      <TouchableOpacity
-        style={[
-          styles.barsButton,
-          { zIndex: 0, position: "absolute", top: 0, left: 0 },
-        ]}
-        onPress={Bars}
+      <View
+          style={{
+            flex: 1,
+            marginTop: 0,
+            paddingTop: 0,
+            backgroundColor: "transparent",
+            borderWidth: 0,
+            margin: 0, // прибирає відступи
+            padding: 0, // прибирає відступи
+          }}
       >
-        <Icon name="bars" size={40} color="black" style={styles.icon} />
-      </TouchableOpacity>
+        <TouchableOpacity
+            style={[
+              styles.barsButton,
+              { zIndex: 0, position: "absolute", top: 0, left: 0 },
+            ]}
+            onPress={Bars}
+        >
+          <Icon name="bars" size={40} color="black" style={styles.icon} />
+        </TouchableOpacity>
 
-      <Animated.View
-        style={[
-          styles.searchButton,
-          {
-            width: searchWidth,
-            backgroundColor: isSearching ? "#ffffff" : "transparent",
-            top: isSearching ? 15 : 17,
-            zIndex: 1,
-            position: "absolute",
-            right: 3,
-          },
-        ]}
-      >
-        {isSearching ? (
-          <>
-            <Icon
-              name="search"
-              size={20}
-              color="black"
-              style={styles.iconInsideSearch}
-            />
+        <Animated.View
+            style={[
+              styles.searchButton,
+              {
+                width: searchWidth,
+                backgroundColor: isSearching ? "#ffffff" : "transparent",
+                top: isSearching ? 15 : 17,
+                zIndex: 1,
+                position: "absolute",
+                right: 3,
+              },
+            ]}
+        >
+          {isSearching ? (
+              <>
+                <Icon
+                    name="search"
+                    size={20}
+                    color="black"
+                    style={styles.iconInsideSearch}
+                />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search..."
+                    placeholderTextColor="#000"
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    onSubmitEditing={handleSearchSubmit}
+                    autoFocus
+                />
+              </>
+          ) : (
+              <TouchableOpacity
+                  onPress={startSearch}
+                  style={styles.searchIconContainer}
+              >
+                <Icon name="search" size={35} color="black" style={styles.icon} />
+              </TouchableOpacity>
+          )}
+        </Animated.View>
+        <MapView
+            style={{ flex: 1 }}
+            region={
+              latitude && longitude
+                  ? {
+                    latitude,
+                    longitude,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
+                  }
+                  : {
+                    latitude: 48.3794, // Центр України за замовчуванням
+                    longitude: 31.1656,
+                    latitudeDelta: 8.5,
+                    longitudeDelta: 8.5,
+                  }
+            }
+            rotateEnabled={false} // Заборона повороту
+            pitchEnabled={false} // Заборона зміни кута нахилу
+        >
+          {latitude && longitude && (
+              <Marker coordinate={{ latitude, longitude }} title="Your location" />
+          )}
+          {/* Полігон для меж України */}
+          {coordinates.length > 0 && (
+              <Polygon
+                  coordinates={coordinates}
+                  strokeWidth={2}
+                  strokeColor="blue"
+                  fillColor="rgba(0, 0, 255, 0.3)" // Напівпрозорий колір заливки
+              />
+          )}
+          {/* Статичні маркери */}
+          {markers.map((marker, index) => (
+              <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: marker.latitude!,
+                    longitude: marker.longitude!,
+                  }}
+                  pinColor="blue" // Встановлюємо синій колір для маркерів
+                  title={marker.name}
+                  description={marker.address}
+              />
+          ))}
+
+        </MapView>
+
+        <TouchableOpacity
+            style={[styles.profileButton, { position: "absolute" }]}
+            onPress={Profile}
+        >
+          <Icon name="user" size={40} color="black" style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+            style={[styles.commonButtonStyle, { position: "absolute" }]}
+            onPress={openPlus}
+        >
+          <Icon name="plus" size={40} color="black" style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+            style={[styles.barsButton, { position: "absolute" }]}
+            onPress={openMenu}
+        >
+          <Icon name="bars" size={40} color="black" style={styles.icon} />
+        </TouchableOpacity>
+
+        <Modal
+            visible={isMenuVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={closeMenu}
+        >
+          <View style={styles.menuContainer}>
+            <TouchableOpacity onPress={closeMenu} style={styles.closeButtonMenu}>
+              <Icon name="times" size={25} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.menuTitle}>Menu</Text>
+
+            <TouchableOpacity onPress={handleNearby} style={styles.menuItem}>
+              <Text style={styles.menuText}>Places nearby</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleBuildRoute} style={styles.menuItem}>
+              <Text style={styles.menuText}>Build a route</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleFavorites} style={styles.menuItem}>
+              <Text style={styles.menuText}>Favorites</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleHistory} style={styles.menuItem}>
+              <Text style={styles.menuText}>Search history</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleSetting} style={styles.menuItem}>
+              <Text style={styles.menuText}>Settings</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <Modal
+            visible={isPlusVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={closePlus}
+        >
+          <View style={styles.plusContainer}>
+            <TouchableOpacity onPress={closePlus} style={styles.closeButtonAdd}>
+              <Icon name="times" size={25} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Add new picture</Text>
+            <TouchableOpacity style={styles.photoBox}>
+              <Icon name="plus" size={80} color="#aaa" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.placeButton} disabled={true}>
+              {" "}
+              {/* Створюємо кнопку "Place", але не клікабельну */}
+              <Text style={styles.placeButtonText}>Place</Text>
+            </TouchableOpacity>
             <TextInput
-              style={styles.searchInput}
-              placeholder="Search..."
-              placeholderTextColor="#000"
-              value={searchText}
-              onChangeText={setSearchText}
-              onSubmitEditing={handleSearchSubmit}
-              autoFocus
+                style={[styles.input, styles.noteInput]}
+                placeholder="Add a note..."
+                placeholderTextColor="#ccc"
+                multiline
             />
-          </>
-        ) : (
-          <TouchableOpacity
-            onPress={startSearch}
-            style={styles.searchIconContainer}
-          >
-            <Icon name="search" size={35} color="black" style={styles.icon} />
-          </TouchableOpacity>
-        )}
-      </Animated.View>
-      <MapView
-        style={{ flex: 1 }}
-        region={
-          latitude && longitude
-            ? {
-                latitude,
-                longitude,
-                latitudeDelta: 0.05,
-                longitudeDelta: 0.05,
-              }
-            : {
-                latitude: 48.3794, // Центр України за замовчуванням
-                longitude: 31.1656,
-                latitudeDelta: 8.5,
-                longitudeDelta: 8.5,
-              }
-        }
-        rotateEnabled={false} // Заборона повороту
-        pitchEnabled={false} // Заборона зміни кута нахилу
-      >
-        {latitude && longitude && (
-          <Marker coordinate={{ latitude, longitude }} title="Your location" />
-        )}
-        {/* Полігон для меж України */}
-        {coordinates.length > 0 && (
-          <Polygon
-            coordinates={coordinates}
-            strokeWidth={2}
-            strokeColor="blue"
-            fillColor="rgba(0, 0, 255, 0.3)" // Напівпрозорий колір заливки
-          />
-        )}
-      </MapView>
-      <TouchableOpacity
-        style={[styles.profileButton, { position: "absolute" }]}
-        onPress={Profile}
-      >
-        <Icon name="user" size={40} color="black" style={styles.icon} />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.commonButtonStyle, { position: "absolute" }]}
-        onPress={openPlus}
-      >
-        <Icon name="plus" size={40} color="black" style={styles.icon} />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.barsButton, { position: "absolute" }]}
-        onPress={openMenu}
-      >
-        <Icon name="bars" size={40} color="black" style={styles.icon} />
-      </TouchableOpacity>
-
-      <Modal
-        visible={isMenuVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={closeMenu}
-      >
-        <View style={styles.menuContainer}>
-          <TouchableOpacity onPress={closeMenu} style={styles.closeButtonMenu}>
-            <Icon name="times" size={25} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.menuTitle}>Menu</Text>
-
-          <TouchableOpacity onPress={handleNearby} style={styles.menuItem}>
-            <Text style={styles.menuText}>Places nearby</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleBuildRoute} style={styles.menuItem}>
-            <Text style={styles.menuText}>Build a route</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleFavorites} style={styles.menuItem}>
-            <Text style={styles.menuText}>Favorites</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleHistory} style={styles.menuItem}>
-            <Text style={styles.menuText}>Search history</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleSetting} style={styles.menuItem}>
-            <Text style={styles.menuText}>Settings</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={isPlusVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={closePlus}
-      >
-        <View style={styles.plusContainer}>
-          <TouchableOpacity onPress={closePlus} style={styles.closeButtonAdd}>
-            <Icon name="times" size={25} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.modalTitle}>Add new picture</Text>
-          <TouchableOpacity style={styles.photoBox}>
-            <Icon name="plus" size={80} color="#aaa" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.placeButton} disabled={true}>
-            {" "}
-            {/* Створюємо кнопку "Place", але не клікабельну */}
-            <Text style={styles.placeButtonText}>Place</Text>
-          </TouchableOpacity>
-          <TextInput
-            style={[styles.input, styles.noteInput]}
-            placeholder="Add a note..."
-            placeholderTextColor="#ccc"
-            multiline
-          />
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </View>
+            <TouchableOpacity style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
   );
 };
 
@@ -587,6 +693,27 @@ const styles = StyleSheet.create({
     left: "40%", // Відступ від лівого краю
     transform: [{ translateX: 90 }], // Зсув вправо для кнопки
   },
+  marker: {
+    width: 30, // Ширина маркера
+    height: 40, // Висота маркера (більше для вигляду краплі)
+    backgroundColor: "#007BFF", // Колір маркера (синій)
+    borderRadius: 15, // Заокруглення для країв маркера
+    transform: [{ rotate: '180deg' }], // Перевернути маркер (крапля)
+    justifyContent: "center", // Центрування вмісту маркера
+    alignItems: "center", // Центрування вмісту маркера
+    position: "absolute", // Абсолютне позиціювання
+    top: -20, // Відступ від верхнього краю
+    left: -15, // Відступ від лівого краю
+  },
+
+  markerText: {
+    fontSize: 14, // Розмір шрифта для тексту маркера
+    color: "#fff", // Колір тексту маркера (білий)
+    fontWeight: "bold", // Жирний шрифт
+    textAlign: "center", // Центрування тексту по горизонталі
+    textAlignVertical: "center", // Центрування тексту по вертикалі
+  },
+
 });
 
 export default AuthScreen;
