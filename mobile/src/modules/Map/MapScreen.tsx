@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
 import * as Location from "expo-location";
 import UkraineGeoJSON from "../../common/geo/Ukraine.json";
-import areasUkraine from "../../common/geo/areasUkraine.json";
+import areasOfUkraine from "../../common/geo/areasOfUkraine.json";
 
 interface LocationData {
   latitude: number | null;
@@ -367,7 +367,7 @@ const AuthScreen: React.FC = () => {
           />
         )}
         {/* Полігони для областей України */}
-        {areasUkraine.features.map((area, index) => {
+        {areasOfUkraine.features.map((area, index) => {
           const areaCoords = area.geometry.coordinates[0].map(
             (point: number[]) => ({
               latitude: point[1],
@@ -381,6 +381,7 @@ const AuthScreen: React.FC = () => {
               coordinates={areaCoords}
               strokeWidth={0.5}
               strokeColor="blue"
+              fillColor="rgba(0, 0, 255, 0.3)"
             />
           );
         })}
