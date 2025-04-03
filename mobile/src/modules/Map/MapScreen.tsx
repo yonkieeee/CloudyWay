@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
-  Animated,
   Keyboard,
   Modal,
+  Animated,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
-import MapView, { Marker, Polygon } from "react-native-maps";
+import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import UkraineGeoJSON from "../../common/geo/Ukraine.json";
 import areasOfUkraine from "../../common/geo/areasOfUkraine.json";
@@ -272,6 +272,31 @@ const AuthScreen: React.FC = () => {
     setIsPlusVisible(false);
   };
 
+  const opacityAnim = useRef(new Animated.Value(0.9)).current; // Початкова прозорість
+
+  const [opacityValue, setOpacityValue] = useState(0.9); // Зберігаємо значення прозорості в state
+
+  // Додаємо слухача для оновлення opacityValue
+  useEffect(() => {
+    const id = opacityAnim.addListener(({ value }) => {
+      setOpacityValue(value); // Оновлюємо значення opacityValue
+    });
+
+    // Очистка слухача
+    return () => opacityAnim.removeListener(id);
+  }, []);
+
+  const handleRegionChange = (region: Region) => {
+    const zoomLevel = region.latitudeDelta; // Чим менше, тим більший зум
+    const newOpacity = Math.max(0.3, Math.min(0.9, zoomLevel * 0.5));
+
+    Animated.timing(opacityAnim, {
+      toValue: newOpacity,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
   return (
     <View
       style={{
@@ -353,6 +378,7 @@ const AuthScreen: React.FC = () => {
         }
         rotateEnabled={false} // Заборона повороту
         pitchEnabled={false} // Заборона зміни кута нахилу
+        onRegionChangeComplete={handleRegionChange} // Відстеження зміни масштабу
       >
         {latitude && longitude && (
           <Marker coordinate={{ latitude, longitude }} title="Your location" />
@@ -381,7 +407,7 @@ const AuthScreen: React.FC = () => {
               coordinates={areaCoords}
               strokeWidth={0.5}
               strokeColor="#073882"
-              fillColor="rgba(176, 190, 200, 0.9)"
+              fillColor={`rgba(176, 190, 200, ${opacityValue})`} // Використовуємо значення прозорості з state
             />
           );
         })}
