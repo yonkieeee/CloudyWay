@@ -297,6 +297,95 @@ const AuthScreen: React.FC = () => {
     }).start();
   };
 
+  const customMapStyle = [
+    {
+      elementType: "geometry",
+      stylers: [
+        {
+          color: "#f5f5f5", // Світлий фон
+        },
+      ],
+    },
+    {
+      elementType: "labels.icon",
+      stylers: [
+        {
+          visibility: "off", // Приховати іконки
+        },
+      ],
+    },
+    {
+      elementType: "labels.text.fill",
+      stylers: [
+        {
+          color: "#757575", // Колір тексту
+        },
+      ],
+    },
+    {
+      elementType: "labels.text.stroke",
+      stylers: [
+        {
+          color: "#f5f5f5", // Колір обводки тексту
+        },
+      ],
+    },
+    {
+      featureType: "poi",
+      elementType: "labels",
+      stylers: [
+        {
+          visibility: "off", // Приховати POI (цікаві місця)
+        },
+      ],
+    },
+    {
+      featureType: "poi",
+      elementType: "geometry",
+      stylers: [
+        {
+          visibility: "off", // Приховати самі POI
+        },
+      ],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [
+        {
+          visibility: "simplified", // Спрощення доріг
+        },
+      ],
+    },
+    {
+      featureType: "transit",
+      elementType: "geometry",
+      stylers: [
+        {
+          visibility: "off", // Приховати транспорт
+        },
+      ],
+    },
+    {
+      featureType: "transit.station",
+      elementType: "geometry",
+      stylers: [
+        {
+          visibility: "off",
+        },
+      ],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [
+        {
+          visibility: "off", // Приховати водні об'єкти
+        },
+      ],
+    },
+  ];
+
   return (
     <View
       style={{
@@ -361,6 +450,7 @@ const AuthScreen: React.FC = () => {
       </Animated.View>
       <MapView
         style={{ flex: 1 }}
+        customMapStyle={customMapStyle} // Застосовуємо стилі
         region={
           latitude && longitude
             ? {
