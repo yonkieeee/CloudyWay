@@ -361,8 +361,8 @@ const AuthScreen: React.FC = () => {
         {coordinates.length > 0 && (
           <Polygon
             coordinates={coordinates}
-            strokeWidth={2}
-            strokeColor="blue"
+            strokeWidth={4}
+            strokeColor="#073882"
             // fillColor="rgba(0, 0, 255, 0.3)" // Напівпрозорий колір заливки
           />
         )}
@@ -380,8 +380,8 @@ const AuthScreen: React.FC = () => {
               key={index}
               coordinates={areaCoords}
               strokeWidth={0.5}
-              strokeColor="blue"
-              fillColor="rgba(0, 0, 255, 0.3)"
+              strokeColor="#073882"
+              fillColor="rgba(176, 190, 200, 0.9)"
             />
           );
         })}
