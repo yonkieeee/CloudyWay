@@ -16,12 +16,7 @@ import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import UkraineGeoJSON from "../../common/geo/Ukraine.json";
 import areasOfUkraine from "../../common/geo/areasOfUkraine.json";
-
-interface LocationData {
-  latitude: number | null;
-  longitude: number | null;
-  errorMsg?: string;
-}
+import { customMapStyle } from "../Map/customMapStyle";
 
 interface MarkerData {
   houseNumber: string; // Номер будинку
@@ -297,95 +292,6 @@ const AuthScreen: React.FC = () => {
     }).start();
   };
 
-  const customMapStyle = [
-    {
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#f5f5f5", // Світлий фон
-        },
-      ],
-    },
-    {
-      elementType: "labels.icon",
-      stylers: [
-        {
-          visibility: "off", // Приховати іконки
-        },
-      ],
-    },
-    {
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#757575", // Колір тексту
-        },
-      ],
-    },
-    {
-      elementType: "labels.text.stroke",
-      stylers: [
-        {
-          color: "#f5f5f5", // Колір обводки тексту
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "labels",
-      stylers: [
-        {
-          visibility: "off", // Приховати POI (цікаві місця)
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "geometry",
-      stylers: [
-        {
-          visibility: "off", // Приховати самі POI
-        },
-      ],
-    },
-    {
-      featureType: "road",
-      elementType: "geometry",
-      stylers: [
-        {
-          visibility: "simplified", // Спрощення доріг
-        },
-      ],
-    },
-    {
-      featureType: "transit",
-      elementType: "geometry",
-      stylers: [
-        {
-          visibility: "off", // Приховати транспорт
-        },
-      ],
-    },
-    {
-      featureType: "transit.station",
-      elementType: "geometry",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "water",
-      elementType: "geometry",
-      stylers: [
-        {
-          visibility: "off", // Приховати водні об'єкти
-        },
-      ],
-    },
-  ];
-
   return (
     <View
       style={{
@@ -451,6 +357,7 @@ const AuthScreen: React.FC = () => {
       <MapView
         style={{ flex: 1 }}
         customMapStyle={customMapStyle} // Застосовуємо стилі
+        showsPointsOfInterest={false}
         region={
           latitude && longitude
             ? {
@@ -479,7 +386,6 @@ const AuthScreen: React.FC = () => {
             coordinates={coordinates}
             strokeWidth={4}
             strokeColor="#073882"
-            // fillColor="rgba(0, 0, 255, 0.3)" // Напівпрозорий колір заливки
           />
         )}
         {/* Полігони для областей України */}
