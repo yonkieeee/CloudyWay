@@ -54,12 +54,7 @@ const mapStyles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  searchInput: {
-    height: 30,
-    flex: 1,
-    color: "#000",
-    backgroundColor: "transparent",
-  },
+
   profileButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -243,6 +238,59 @@ const mapStyles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
   },
+  searchWrapper: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    right: 10,
+    zIndex: 10,
+  },
+
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    bottom:40,
+    borderRadius: 30,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  searchInput: {
+    flex: 1,
+    paddingLeft: 10,
+    fontSize: 16,
+    color: '#000',
+  },
+
+  suggestionsContainer: {
+    backgroundColor: 'white',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    bottom:40,
+    maxHeight: 200,
+    overflow: 'scroll',
+    zIndex: 9,
+    position: 'relative',
+  },
+
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: 'white',
+  },
+
+  suggestionText: {
+    fontSize: 16,
+    color: 'black',
+  },
+
 });
 
 export default mapStyles;
