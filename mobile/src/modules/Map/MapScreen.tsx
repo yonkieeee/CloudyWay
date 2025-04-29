@@ -76,10 +76,6 @@ const AuthScreen: React.FC = () => {
     setIsMenuVisible(false);
   };
 
-  const handleNearby = () => {
-    Alert.alert("Places nearby", "Displaying nearby locations.");
-    closeMenu();
-  };
 
   const handleBuildRoute = () => {
     Alert.alert("Build Route", "Routing feature is under development.");
@@ -100,6 +96,13 @@ const AuthScreen: React.FC = () => {
     Alert.alert("Setting");
     closeMenu();
   };
+
+
+  const handleNearby = () => {
+    router.push("/postscreen");
+    closeMenu();
+  };
+
 
   const startSearch = (): void => {
     setIsSearching(true);
@@ -265,6 +268,9 @@ const AuthScreen: React.FC = () => {
             <Text style={styles.menuText}>Places nearby</Text>
           </TouchableOpacity>
 
+н
+
+
           <TouchableOpacity onPress={handleBuildRoute} style={styles.menuItem}>
             <Text style={styles.menuText}>Build a route</Text>
           </TouchableOpacity>
@@ -311,6 +317,7 @@ const AuthScreen: React.FC = () => {
           <TouchableOpacity style={styles.saveButton}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
+
         </View>
       </Modal>
     </View>
