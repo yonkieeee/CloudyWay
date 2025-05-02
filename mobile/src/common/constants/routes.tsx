@@ -11,4 +11,5 @@ export const ROUTES = {
   addLocation: "addLocation",
   details: "details",
   resetPassword: "resetPassword",
+  splashScreen: "splashScreen",
 };
