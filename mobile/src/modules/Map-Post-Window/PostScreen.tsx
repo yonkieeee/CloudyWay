@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import {
   Image,
 } from "react-native";
 import axios from "axios"; // Додано для роботи з бекендом
+import { useRoute } from "@react-navigation/native";
+import { useLocalSearchParams } from "expo-router";
 
 const PostsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -19,6 +21,13 @@ const PostsScreen = () => {
   const [description, setDescription] = useState(""); // Для введення опису
   const [isImagePicked, setIsImagePicked] = useState(false); // Стейт для вибору фото
   const [uid, setUid] = useState(1); // Твій UID, може бути з контексту або іншим способом
+  const route = useRoute();
+  const params = useLocalSearchParams();
+  const parsedMarker = params.marker ? JSON.parse(params.marker as string) : null;
+
+  useEffect(() => {
+    console.log("Opened for marker:", parsedMarker);
+  }, []);
 
   // Відкриття камери
   const openCamera = async () => {
@@ -82,10 +91,10 @@ const PostsScreen = () => {
       name: "photo.jpg", // Назва файлу
     };
 
-    formData.append('file', file);
+    formData.append('file', file as any);
     formData.append('description', description);
-    formData.append('coordinates', 'gg'); // Замінити на реальні координати
-    formData.append('placeID', 'placeId123'); // Замінити на реальний ID місця
+    formData.append('coordinates', JSON.stringify(parsedMarker?.coordinates));
+    formData.append('placeID', parsedMarker?.id || "unknown");
     console.log("UID:", uid);
 
     try {
@@ -106,7 +115,13 @@ const PostsScreen = () => {
       setModalVisible(false);
       setDescription(""); // Очистка опису
     } catch (error) {
-      console.error('Error uploading data:', error.response ? error.response.data : error.message);
+      if (axios.isAxiosError(error)) {
+        console.error('Error uploading data:', error.response?.data || error.message);
+      } else if (error instanceof Error) {
+        console.error('Error uploading data:', error.message);
+      } else {
+        console.error('Unknown error uploading data:', error);
+      }
       alert("Error uploading photo. Please try again later.");
     }
 
@@ -122,7 +137,10 @@ const PostsScreen = () => {
     <View style={styles.screen}>
       <View style={styles.card}>
         <View style={styles.headerRow}>
-          <Text style={styles.nameLocation}>NameLocation</Text>
+          <Text style={styles.nameLocation}>
+            {parsedMarker?.placeName || "Unknown Location"}
+          </Text>
+
           <FontAwesome
             name={isVisited ? "star" : "star-o"}
             size={24}
