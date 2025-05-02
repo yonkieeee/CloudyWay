@@ -12,4 +12,5 @@ export const ROUTES = {
   details: "details",
   resetPassword: "resetPassword",
   posts: "posts",
+  splashScreen: "splashScreen",
 };
