@@ -5,6 +5,7 @@ import authStyles from "@/src/common/styles/authStyles";
 import { useRouter } from "expo-router";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { firebaseSDK } from "@/FirebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignInScreen: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -14,7 +15,21 @@ const SignInScreen: React.FC = () => {
 
   const handleSignIn = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      // Зберігаємо в AsyncStorage
+      await AsyncStorage.setItem(
+        "user",
+        JSON.stringify({
+          uid: user.uid,
+        }),
+      );
+
       router.push("/map");
     } catch (e) {
       console.log("@sign-in-error", e);

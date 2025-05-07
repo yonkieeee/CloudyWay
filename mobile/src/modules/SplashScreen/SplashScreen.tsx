@@ -5,24 +5,23 @@ import { router } from "expo-router";
 
 export default function SplashScreen() {
   useEffect(() => {
-    const checkUser = async () => {
+    const checkAuth = async () => {
       try {
-        console.log("Перевіряю користувача в AsyncStorage...");
-        const userData = await AsyncStorage.getItem("user");
-        console.log("Знайдені дані:", userData);
-
-        if (userData !== null) {
+        const uid = await AsyncStorage.getItem("@uid");
+        if (uid) {
+          console.log("Знайдено UID:", uid);
           router.replace("/map");
         } else {
+          console.log("UID не знайдено");
           router.replace("/auth");
         }
       } catch (error) {
-        console.error("Помилка при читанні з AsyncStorage:", error);
+        console.error("Помилка при перевірці UID:", error);
         router.replace("/auth");
       }
     };
 
-    checkUser();
+    checkAuth();
   }, []);
 
   return (

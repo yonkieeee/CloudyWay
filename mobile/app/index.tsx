@@ -1,6 +1,6 @@
-import AuthScreen from "@/src/modules/AuthScreen/AuthScreen";
 import "react-native-gesture-handler";
+import SplashScreen from "@/src/modules/SplashScreen/SplashScreen";
 
-export default function Auth() {
-  return <AuthScreen />;
+export default function Splash() {
+  return <SplashScreen />;
 }
