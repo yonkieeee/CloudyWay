@@ -19,9 +19,21 @@ export const customMapStyle: MapStyleElement[] = [
   },
 
   // Приховати всі POI
+
   {
     featureType: "poi",
-    stylers: [{ visibility: "off" }],
+    elementType: "labels.text",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.icon",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [{ visibility: "off" }]
   },
   {
     featureType: "poi.business",
@@ -29,10 +41,6 @@ export const customMapStyle: MapStyleElement[] = [
   },
   {
     featureType: "poi.park",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "poi.place_of_worship",
     stylers: [{ visibility: "off" }],
   },
   {
