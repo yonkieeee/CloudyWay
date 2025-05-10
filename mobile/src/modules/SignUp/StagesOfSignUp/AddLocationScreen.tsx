@@ -47,14 +47,14 @@ const AddLocationScreen: React.FC = () => {
 
         // Запит до сервера для оновлення локації користувача
         const response = await fetch(
-          `http://13.60.155.25:8080/auth/change-user?uid=${uid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
+            `http://51.20.126.241:8080/profile/change?uid=${uid}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(userData),
             },
-            body: JSON.stringify(userData),
-          },
         );
 
         console.log("Response status:", response.status);

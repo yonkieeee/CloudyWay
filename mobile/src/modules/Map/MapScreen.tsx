@@ -5,12 +5,14 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Animated,
   Keyboard,
   Modal,
-  Animated,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
+
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import UkraineGeoJSON from "../../common/geo/Ukraine.json";
@@ -18,111 +20,107 @@ import areasOfUkraine from "../../common/geo/areasOfUkraine.json";
 import { customMapStyle } from "../Map/customMapStyle";
 import mapStyles from "../../common/styles/mapStyles";
 
-interface MarkerData {
-  houseNumber: string; // Номер будинку
-  street: string; // Вулиця
-  city: string; // Місто
-  state: string; // Область
-  postalCode: string; // Поштовий код
-  country: string; // Країна
-  latitude?: number; // Широта (не обов'язково)
-  longitude?: number; // Довгота (не обов'язково)
-  name?: string; // Назва місця (не обов'язково)
-  address?: string; // Адреса місця (не обов'язково)
+interface Marker {
+  id: number;
+  placeName: string;
+  city: string;
+  county: string;
+  street: string;
+  houseNumber: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 }
+
+interface DiscoveredPlace {
+  placeName?: string;
+  hereApiId?: string;
+  city?: string;
+  county?: string;
+  street?: string;
+  houseNumber?: string;
+  coordinates?: {
+    lat?: number;
+    lng?: number;
+  };
+}
+
 
 const AuthScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<any | null>(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isPlusVisible, setIsPlusVisible] = useState(false);
   const searchWidth = useState(new Animated.Value(90))[0];
   const router = useRouter();
-
+  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [discoveredPlaces, setDiscoveredPlaces] = useState<DiscoveredPlace[]>([]);
+  const [isPlaceChoiceVisible, setIsPlaceChoiceVisible] = useState(false);
+  const [newPlaceName, setNewPlaceName] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [coordinates, setCoordinates] = useState<
-    { latitude: number; longitude: number }[]
+      { latitude: number; longitude: number }[]
   >([]);
+  const mapRef = useRef<any>(null);
 
-  // Статичні маркери для демонстрації
-  const staticMarkers: MarkerData[] = [
-    {
-      houseNumber: "1",
-      street: "Sofiivska St.",
-      city: "Kyiv",
-      state: "Kyiv",
-      postalCode: "01001",
-      country: "Ukraine",
-      latitude: 50.4501,
-      longitude: 30.52,
-      name: "Софійський собор",
-      address: "Sofiivska St., Kyiv, Ukraine",
-    },
-    {
-      houseNumber: "2",
-      street: "Rynok Square",
-      city: "Lviv",
-      state: "Lviv",
-      postalCode: "79000",
-      country: "Ukraine",
-      latitude: 49.8397,
-      longitude: 24.0297,
-      name: "Площа Ринок",
-      address: "Rynok Square, Lviv, Ukraine",
-    },
-    {
-      houseNumber: "3",
-      street: "Potiomkin St.",
-      city: "Odessa",
-      state: "Odessa",
-      postalCode: "65000",
-      country: "Ukraine",
-      latitude: 46.485,
-      longitude: 30.735,
-      name: "Потьомкінські сходи",
-      address: "Potiomkin Stairs, Odessa, Ukraine",
-    },
-    {
-      houseNumber: "4",
-      street: "Svobody Square",
-      city: "Kharkiv",
-      state: "Kharkiv",
-      postalCode: "61000",
-      country: "Ukraine",
-      latitude: 49.9935,
-      longitude: 36.2304,
-      name: "Площа Свободи",
-      address: "Svobody Square, Kharkiv, Ukraine",
-    },
-    {
-      houseNumber: "5",
-      street: "Kyivska St.",
-      city: "Chernihiv",
-      state: "Chernihiv",
-      postalCode: "14000",
-      country: "Ukraine",
-      latitude: 51.8051,
-      longitude: 31.289,
-      name: "Чернігівський історичний музей",
-      address: "Kyivska St., Chernihiv, Ukraine",
-    },
-    {
-      houseNumber: "6",
-      street: "Khreshchatyk St.",
-      city: "Kyiv",
-      state: "Kyiv",
-      postalCode: "01001",
-      country: "Ukraine",
-      latitude: 50.45,
-      longitude: 30.52,
-      name: "Хрещатик",
-      address: "Khreshchatyk St., Kyiv, Ukraine",
-    },
-  ];
+  const fetchMarkers = async (): Promise<Marker[]> => {
+    try {
+      const dbUrl = `http://3.122.242.246:5001/places/getAllPlaces`;
 
-  const [markers, setMarkers] = useState<MarkerData[]>(staticMarkers); // Використовуємо статичні маркери
+      const dbResponse = await fetch(dbUrl);
+      const dbData: Marker[] = await dbResponse.json();
+
+      if (dbResponse.ok && dbData.length > 0) {
+        console.log("Fetched markers from the database", dbData);
+        return dbData;
+      }
+
+      console.log("No data in DB, fetching from API...");
+      const apiResponse = await fetch(`https://your-api.com/get-markers`);
+      const apiData: Marker[] = await apiResponse.json();
+
+      if (!apiResponse.ok) {
+        throw new Error("Error fetching data from API");
+      }
+
+      console.log("Fetched markers from API", apiData);
+
+      // Save API data to the database
+      await fetch("https://3.122.242.246:5001/places/addPlace", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      return apiData;
+    } catch (error) {
+      console.error("Error fetching markers:", error);
+      return [];
+    }
+  };
+  useEffect(() => {
+    fetchMarkers().then((fetchedMarkers) => {
+      console.log("Fetched markers:", fetchedMarkers);
+      const formattedMarkers = fetchedMarkers.map((marker) => ({
+        ...marker,
+        coordinates: {
+          lat: parseFloat(marker.coordinates.lat as any),
+          lng: parseFloat(marker.coordinates.lng as any),
+        },
+      }));
+      setMarkers(formattedMarkers); // Set markers data
+    });
+  }, []);
 
   const getUserLocation = async (): Promise<void> => {
     try {
@@ -167,9 +165,9 @@ const AuthScreen: React.FC = () => {
     }
 
     let rawCoords: any =
-      geoData.type === "MultiPolygon"
-        ? geoData.coordinates[0][0] // MultiPolygon має ще один рівень вкладеності
-        : geoData.coordinates[0];
+        geoData.type === "MultiPolygon"
+            ? geoData.coordinates[0][0] // MultiPolygon має ще один рівень вкладеності
+            : geoData.coordinates[0];
 
     if (!Array.isArray(rawCoords)) {
       console.error("Invalid coordinates format in GeoJSON");
@@ -183,6 +181,7 @@ const AuthScreen: React.FC = () => {
 
     setCoordinates(formattedCoords); // ✅ Тепер setCoordinates існує
   };
+
 
   useEffect(() => {
     getUserLocation();
@@ -201,6 +200,10 @@ const AuthScreen: React.FC = () => {
     setIsMenuVisible(false);
   };
 
+  // const handleNearby = () => {
+  //   router.push("/postscreen");
+  //   closeMenu();
+  // };
   const handleNearby = () => {
     Alert.alert("Places nearby", "Displaying nearby locations.");
     closeMenu();
@@ -238,6 +241,7 @@ const AuthScreen: React.FC = () => {
   const endSearch = (): void => {
     setIsSearching(false);
     setSearchText("");
+    setSearchResults([]);
     Animated.timing(searchWidth, {
       toValue: 90,
       duration: 300,
@@ -247,25 +251,184 @@ const AuthScreen: React.FC = () => {
 
     setTimeout(() => {
       searchWidth.setValue(90);
-    }, 300); // Затримка до завершення анімації
+    }, 300);
+  };
+
+  const fetchSearchResults = async (query: string) => {
+    console.log("🔎 Пошук запиту:", query);
+
+    try {
+      const response = await fetch(`http://3.122.242.246:5001/places/fuzzySearch?query=${query}`);
+      const data = await response.json();
+
+      console.log("📥 Отримано дані:", data);
+
+      if (response.ok && data.length > 0) {
+        setSearchResults(data);
+        console.log("✅ Результати пошуку встановлено:", data.length, "знайдено");
+      } else {
+        console.log("❗️Немає збігів або неуспішна відповідь");
+      }
+    } catch (error) {
+      console.error("🚨 Помилка при пошуку:", error);
+    }
+  };
+
+
+  const handleSearchChange = (text: string) => {
+    setSearchText(text);
+    if (text.trim().length > 2) {
+      fetchSearchResults(text);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const goToPlace = (place: any) => {
+    console.log("goToPlace called with:", place);
+    console.log(`📍 Спроба перейти до координат: lat=${place.coordinates.lat}, lng=${place.coordinates.lng}`);
+
+    const existingMarker = markers.find(
+        m =>
+            m.placeName === place.placeName &&
+            m.coordinates.lat === place.coordinates.lat &&
+            m.coordinates.lng === place.coordinates.lng
+    );
+
+    if (existingMarker) {
+      console.log("✅ Маркер вже існує, виділяємо його та переходимо");
+      console.log(`🎯 Координати маркера: lat=${existingMarker.coordinates.lat}, lng=${existingMarker.coordinates.lng}`);
+
+      setSelectedMarker(existingMarker);
+
+      if (mapRef.current) {
+        mapRef.current.animateToRegion({
+          latitude: existingMarker.coordinates.lat,
+          longitude: existingMarker.coordinates.lng,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
+        }, 1000);
+      } else {
+        console.log("❌ mapRef.current is null");
+      }
+
+    } else {
+      console.log("➕ Маркер не знайдено, не переходимо");
+    }
   };
 
   const handleSearchSubmit = () => {
-    Alert.alert("Searching", searchText);
+    console.log("📤 Надіслано пошук:", searchText);
+
+    if (searchText.trim()) {
+      fetchMarkers().then((fetchedMarkers) => {
+        console.log("📍 Отримано маркери:", fetchedMarkers.length);
+        setMarkers(fetchedMarkers);
+        Alert.alert("Searching", `Results for: ${searchText}`);
+      });
+    } else {
+      console.log("❗️ Порожній пошуковий текст");
+    }
+
     endSearch();
   };
+
+  const handleAddNewPlace = async () => {
+    if (!newPlaceName.trim()) {
+      Alert.alert('Error', 'Please enter a place name');
+      return;
+    }
+
+    try {
+      const discoverUrl = `http://3.122.242.246:5000/locations/discover?query=${encodeURIComponent(newPlaceName)}`;
+      const discoverResponse = await fetch(discoverUrl);
+
+      // Розбираємо відповідь лише один раз
+      const places = await discoverResponse.json();
+
+      if (!discoverResponse.ok) {
+        console.error('❗️ Error discovering place');
+        Alert.alert('Error', 'Failed to discover place');
+        return;
+      }
+
+      setDiscoveredPlaces(places); // Зберігаємо отримані місця
+
+      console.log('📥 Отримано з discover:', places);
+
+      if (!Array.isArray(places) || places.length === 0) {
+        Alert.alert('No results', 'No place found with this name');
+        return;
+      }
+    } catch (error) {
+      console.error('🚨 Error:', error);
+      Alert.alert('Error', 'Something went wrong');
+    }
+  };
+
+  const handleSelectDiscoveredPlace = async (place: any) => {
+    const cleanedPlace = {
+      placeName: place.placeName || '',
+      here_api_id: place.hereApiId || '',
+      city: place.city || '',
+      county: place.county || '',
+      street: place.street || '',
+      houseNumber: place.houseNumber || '',
+      coordinates: {
+        lat: place.coordinates?.lat || 0,
+        lng: place.coordinates?.lng || 0,
+      },
+    };
+
+    try {
+      const addResponse = await fetch('http://3.122.242.246:5001/places/addPlace', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cleanedPlace),
+      });
+
+      const responseText = await addResponse.text();
+
+      if (addResponse.ok) {
+        Alert.alert('Success', 'Place added successfully');
+        setIsAddModalVisible(false);
+        setNewPlaceName('');
+        await fetchMarkers().then(setMarkers);
+
+        setTimeout(() => {
+          console.log('Moving to coordinates:', cleanedPlace.coordinates);
+          goToPlace({
+            coordinates: {
+              lat: cleanedPlace.coordinates.lat,
+              lng: cleanedPlace.coordinates.lng,
+            },
+            placeName: cleanedPlace.placeName,
+          });
+        }, 500);
+      } else {
+        Alert.alert('Error', `Failed to add place:\n${responseText}`);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong');
+      console.error('🚨 Error:', error);
+    }
+  };
+
+
 
   const Profile = (): void => {
     router.push("/profile");
   };
 
-  const openPlus = (): void => {
-    setIsPlusVisible(true);
-  };
-
-  const closePlus = (): void => {
-    setIsPlusVisible(false);
-  };
+  // const openPlus = (): void => {
+  //   setIsPlusVisible(true);
+  // };
+  //
+  // const closePlus = (): void => {
+  //   setIsPlusVisible(false);
+  // };
 
   const opacityAnim = useRef(new Animated.Value(0.9)).current; // Початкова прозорість
 
@@ -328,104 +491,200 @@ const AuthScreen: React.FC = () => {
         ]}
       >
         {isSearching ? (
-          <>
-            <Icon
-              name="search"
-              size={20}
-              color="black"
-              style={mapStyles.iconInsideSearch}
-            />
-            <TextInput
-              style={mapStyles.searchInput}
-              placeholder="Search..."
-              placeholderTextColor="#000"
-              value={searchText}
-              onChangeText={setSearchText}
-              onSubmitEditing={handleSearchSubmit}
-              autoFocus
-            />
-          </>
+            <View style={mapStyles.searchWrapper}>
+              <View style={mapStyles.searchContainer}>
+                <Icon name="search" size={20} color="black" style={mapStyles.iconInsideSearch} />
+
+                <TextInput
+                    style={mapStyles.searchInput}
+                    placeholder="Search..."
+                    placeholderTextColor="#000"
+                    value={searchText}
+                    onChangeText={handleSearchChange}
+                    onSubmitEditing={handleSearchSubmit}
+                    autoFocus
+                />
+
+                <TouchableOpacity onPress={() => setIsAddModalVisible(true)}>
+                  <Icon name="plus" size={22} color="black" style={mapStyles.addIconInsideSearch} />
+                </TouchableOpacity>
+              </View>
+
+
+              {searchResults.length > 0 && (
+                  <ScrollView style={mapStyles.suggestionsContainer}>
+                    {searchResults.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={mapStyles.suggestionItem}
+                            onPress={() => {
+                              goToPlace(item);
+                              setSearchText(item.place_name);
+                              setSearchResults([]);
+                              endSearch();
+                            }}
+                        >
+                          <Text style={mapStyles.suggestionText}>{item.placeName}</Text>
+
+
+                        </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+              )}
+
+            </View>
         ) : (
-          <TouchableOpacity
-            onPress={startSearch}
-            style={mapStyles.searchIconContainer}
-          >
-            <Icon
-              name="search"
-              size={35}
-              color="black"
-              style={mapStyles.icon}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+                onPress={startSearch}
+                style={mapStyles.searchIconContainer}
+            >
+              <Icon name="search" size={35} color="black" style={mapStyles.icon} />
+            </TouchableOpacity>
         )}
+        <Modal
+            visible={isAddModalVisible}
+            animationType="slide"
+            transparent
+            onRequestClose={() => setIsAddModalVisible(false)}
+        >
+          <View style={mapStyles.modalBackground}>
+            <View style={mapStyles.modalContainer}>
+              <Text style={mapStyles.modalTitle2}>Add New Place</Text>
+
+              <TextInput
+                  placeholder="Place Name"
+                  value={newPlaceName}
+                  onChangeText={setNewPlaceName}
+                  style={mapStyles.modalInput}
+              />
+
+              {discoveredPlaces.length > 0 && (
+                  <ScrollView style={{ maxHeight: 200, marginBottom: 10 }}>
+                    {discoveredPlaces.map((place, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={mapStyles.suggestionItem}
+                            onPress={() => handleSelectDiscoveredPlace(place)}
+                        >
+                          <Text style={mapStyles.suggestionText}>
+                            {place.placeName}, {place.city}, {place.street}
+                          </Text>
+                        </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+              )}
+
+              <View style={mapStyles.modalButtons}>
+                <TouchableOpacity
+                    onPress={handleAddNewPlace}
+                    style={[mapStyles.modalButton, { backgroundColor: '#007AFF' }]}
+                >
+                  <Text style={mapStyles.modalButtonText}>Search</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => setIsAddModalVisible(false)}
+                    style={[mapStyles.modalButton, { backgroundColor: 'gray' }]}
+                >
+                  <Text style={mapStyles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+          </View>
+        </Modal>
+
+
+
       </Animated.View>
       <MapView
-        style={{ flex: 1 }}
-        customMapStyle={customMapStyle} // Застосовуємо стилі
-        showsPointsOfInterest={false}
-        region={
-          latitude && longitude
-            ? {
-                latitude,
-                longitude,
-                latitudeDelta: 0.05,
-                longitudeDelta: 0.05,
-              }
-            : {
-                latitude: 48.3794, // Центр України за замовчуванням
-                longitude: 31.1656,
-                latitudeDelta: 8.5,
-                longitudeDelta: 8.5,
-              }
-        }
-        rotateEnabled={false} // Заборона повороту
-        pitchEnabled={false} // Заборона зміни кута нахилу
-        onRegionChangeComplete={handleRegionChange} // Відстеження зміни масштабу
+          ref={mapRef}
+          style={{ flex: 1 }}
+          customMapStyle={customMapStyle} // Застосовуємо стилі
+          showsPointsOfInterest={false}
+          region={
+            latitude && longitude
+                ? {
+                  latitude,
+                  longitude,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                }
+                : {
+                  latitude: 48.3794, // Центр України за замовчуванням
+                  longitude: 31.1656,
+                  latitudeDelta: 8.5,
+                  longitudeDelta: 8.5,
+                }
+          }
+          rotateEnabled={false} // Заборона повороту
+          pitchEnabled={false} // Заборона зміни кута нахилу
+          onRegionChangeComplete={handleRegionChange} // Відстеження зміни масштабу
       >
         {latitude && longitude && (
-          <Marker coordinate={{ latitude, longitude }} title="Your location" />
+            <Marker coordinate={{ latitude, longitude }} title="Your location" />
         )}
         {/* Полігон для меж України */}
         {coordinates.length > 0 && (
-          <Polygon
-            coordinates={coordinates}
-            strokeWidth={4}
-            strokeColor="#073882"
-          />
+            <Polygon
+                coordinates={coordinates}
+                strokeWidth={4}
+                strokeColor="#073882"
+            />
         )}
         {/* Полігони для областей України */}
         {areasOfUkraine.features.map((area, index) => {
           const areaCoords = area.geometry.coordinates[0].map(
-            (point: number[]) => ({
-              latitude: point[1],
-              longitude: point[0],
-            }),
+              (point: number[]) => ({
+                latitude: point[1],
+                longitude: point[0],
+              }),
           );
 
           return (
-            <Polygon
-              key={index}
-              coordinates={areaCoords}
-              strokeWidth={0.5}
-              strokeColor="#073882"
-              fillColor={`rgba(176, 190, 200, ${opacityValue})`} // Використовуємо значення прозорості з state
-            />
+              <Polygon
+                  key={index}
+                  coordinates={areaCoords}
+                  strokeWidth={0.5}
+                  strokeColor="#073882"
+                  fillColor={`rgba(176, 190, 200, ${opacityValue})`} // Використовуємо значення прозорості з state
+              />
           );
         })}
 
-        {/* Статичні маркери */}
-        {markers.map((marker, index) => (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: marker.latitude!,
-              longitude: marker.longitude!,
-            }}
-            pinColor="blue" // Встановлюємо синій колір для маркерів
-            title={marker.name}
-            description={marker.address}
-          />
-        ))}
+        {/* маркери */}
+        {markers.map((marker, index) => {
+          const lat = parseFloat(marker.coordinates.lat as any);
+          const lng = parseFloat(marker.coordinates.lng as any);
+
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn("Неправильні координати маркера:", marker);
+            return null;
+          }
+
+          return (
+              <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: lat,
+                    longitude: lng,
+                  }}
+                  pinColor={selectedMarker?.placeName === marker.placeName ? "blue" : "blue"}
+                  title={marker.placeName}
+                  description={`${marker.street} ${marker.houseNumber}, ${marker.city}, ${marker.county}`}
+                  onPress={() => {
+                    setSelectedMarker(marker);
+                    router.push({
+                      pathname: "/postscreen",
+                      params: {
+                        marker: JSON.stringify(marker), // передаємо дані як JSON строку
+                      },
+                    });
+                  }}
+              />
+          );
+        })}
+
+
       </MapView>
 
       <TouchableOpacity
@@ -436,11 +695,17 @@ const AuthScreen: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[mapStyles.commonButtonStyle, { position: "absolute" }]}
-        onPress={openPlus}
+          style={[mapStyles.commonButtonStyle, { position: "absolute" }]}
+          onPress={() => router.push("/allsearchprofile")}
       >
-        <Icon name="plus" size={40} color="black" style={mapStyles.icon} />
+        <Icon name="user-plus" size={40} color="black" style={mapStyles.icon} />
       </TouchableOpacity>
+      {/*<TouchableOpacity*/}
+      {/*  style={[mapStyles.commonButtonStyle, { position: "absolute" }]}*/}
+      {/*  onPress={openPlus}*/}
+      {/*>*/}
+      {/*  <Icon name="plus" size={40} color="black" style={mapStyles.icon} />*/}
+      {/*</TouchableOpacity>*/}
 
       <TouchableOpacity
         style={[mapStyles.barsButton, { position: "absolute" }]}
@@ -450,15 +715,15 @@ const AuthScreen: React.FC = () => {
       </TouchableOpacity>
 
       <Modal
-        visible={isMenuVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={closeMenu}
+          visible={isMenuVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={closeMenu}
       >
         <View style={mapStyles.menuContainer}>
           <TouchableOpacity
-            onPress={closeMenu}
-            style={mapStyles.closeButtonMenu}
+              onPress={closeMenu}
+              style={mapStyles.closeButtonMenu}
           >
             <Icon name="times" size={25} color="#fff" />
           </TouchableOpacity>
@@ -469,15 +734,15 @@ const AuthScreen: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={handleBuildRoute}
-            style={mapStyles.menuItem}
+              onPress={handleBuildRoute}
+              style={mapStyles.menuItem}
           >
             <Text style={mapStyles.menuText}>Build a route</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={handleFavorites}
-            style={mapStyles.menuItem}
+              onPress={handleFavorites}
+              style={mapStyles.menuItem}
           >
             <Text style={mapStyles.menuText}>Favorites</Text>
           </TouchableOpacity>
@@ -493,15 +758,15 @@ const AuthScreen: React.FC = () => {
       </Modal>
 
       <Modal
-        visible={isPlusVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={closePlus}
+          visible={isPlusVisible}
+          transparent={true}
+          animationType="slide"
+          //onRequestClose={closePlus}
       >
         <View style={mapStyles.plusContainer}>
           <TouchableOpacity
-            onPress={closePlus}
-            style={mapStyles.closeButtonAdd}
+              //onPress={closePlus}
+              style={mapStyles.closeButtonAdd}
           >
             <Icon name="times" size={25} color="#fff" />
           </TouchableOpacity>
@@ -515,10 +780,10 @@ const AuthScreen: React.FC = () => {
             <Text style={mapStyles.placeButtonText}>Place</Text>
           </TouchableOpacity>
           <TextInput
-            style={[mapStyles.input, mapStyles.noteInput]}
-            placeholder="Add a note..."
-            placeholderTextColor="#ccc"
-            multiline
+              style={[mapStyles.input, mapStyles.noteInput]}
+              placeholder="Add a note..."
+              placeholderTextColor="#ccc"
+              multiline
           />
           <TouchableOpacity style={mapStyles.saveButton}>
             <Text style={mapStyles.saveButtonText}>Save</Text>

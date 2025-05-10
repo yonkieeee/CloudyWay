@@ -4,15 +4,18 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
+import { useRouter } from "expo-router";
 
 
 const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
+    const router = useRouter();
+
     return (
         <ImageBackground
             source={require("../../../assets/images/background.png")}
             style={styles.header}
         >
-            <TouchableOpacity style={styles.backButton} onPress={() => console.log("Back button pressed")}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.push("/map")}>
                 <Icon name="arrow-left" size={20} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.profileName}>{userData?.name ?? "User Name"}</Text>
@@ -23,10 +26,10 @@ const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
                 <View style={styles.avatar} />
             </View>
             <View style={styles.infoContainer}>
-                <View style={styles.infoBox}>
+                <TouchableOpacity style={styles.infoBox} onPress={() => router.push("/friendsearch")}>
                     <Text style={styles.infoTitle}>Friends</Text>
                     <Text style={styles.infoContent}>{userData?.friends ?? 0}</Text>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.infoBox}>
                     <Text style={styles.infoTitle}>Visited Places</Text>
                     <Text style={styles.infoContent}>{userData?.visitedPlaces ?? 0}</Text>
@@ -58,61 +61,68 @@ const ProfileScreen = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<string>("Album");
 
-    const getUserDataFromServer = async (uid: string) => {
-        try {
-            const response = await axios.get(`http://13.60.155.25:8080/auth?uid=${uid}`);
-            console.log("Response from server:", response.data);
-            setUserData(response.data);
-        } catch (error) {
-            console.error("Error fetching data from server:", error);
-        }
-    }
-
     const getProfileData = async () => {
         try {
-            const token = await AsyncStorage.getItem("authToken");
-            if (!token) {
-                console.log("No token found");
-                return;
-            }
-
             const auth = getAuth();
             const user = auth.currentUser;
 
             if (user) {
-                const userName = user.displayName ?? "No Name";
-                const userEmail = user.email;
+                const token = await user.getIdToken();
+                if (!token) return;
 
                 const uid = user.uid;
+                const response = await axios.get(`http://51.20.126.241:8080/profile?uid=${uid}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-                const response = await axios.get(`http://13.60.155.25:8080/auth?uid=${uid}`);
-                console.log("Server response:", response.data);
+                // Отримуємо кількість друзів через getFollowing
+                const friendsResponse = await axios.get(`http://3.73.129.214:5002/users/getFollowing/${uid}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-                setUserData(prevState => ({
-                    ...prevState,
-                    name: response.data.username ?? "User Name",
-                    friends: response.data.friends ?? 0,
+                setUserData({
+                    name: response.data.username || user.displayName,
+                    friends: friendsResponse.data.length ?? 0,  // Кількість друзів
                     visitedPlaces: response.data.visitedPlaces ?? 0,
                     mapProgress: response.data.mapProgress ?? "0%",
                     album: response.data.album ?? [],
                     achievements: response.data.achievements ?? "Achievements section is empty for now.",
                     statistics: response.data.statistics ?? { progress: "0%" },
-                }));
-
+                });
             }
 
             setLoading(false);
-        } catch (error: unknown) {
+        } catch (error) {
             console.error("Error fetching profile data:", error);
             setLoading(false);
         }
     };
 
+    const handleAddFriend = async (followerId: string, followedId: string) => {
+        try {
+            // Викликаємо API для створення слідкування
+            await axios.post(`http://3.73.129.214:5002/users/createFollow/${followerId}/${followedId}`);
+            // Після цього повторно отримуємо список друзів
+            getProfileData();
+        } catch (error) {
+            console.error("Error adding friend:", error);
+        }
+    };
+
+    const handleRemoveFriend = async (followerId: string, followedId: string) => {
+        try {
+            // Викликаємо API для видалення слідкування
+            await axios.delete(`http://3.73.129.214:5002/users/deleteFollow/${followerId}/${followedId}`);
+            // Після цього повторно отримуємо список друзів
+            getProfileData();
+        } catch (error) {
+            console.error("Error removing friend:", error);
+        }
+    };
 
     useEffect(() => {
         getProfileData();
     }, []);
-
 
     if (loading) {
         return (
@@ -143,11 +153,9 @@ const ProfileScreen = () => {
                 <TouchableOpacity style={[styles.tabButton, activeTab === "Album" && styles.activeTabButton]} onPress={() => setActiveTab("Album")}>
                     <Icon name="book" size={24} color={activeTab === "Album" ? "#030E38" : "#aaa"} />
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tabButton, activeTab === "Achievements" && styles.activeTabButton]} onPress={() => setActiveTab("Achievements")}>
+                <TouchableOpacity style={[styles.tabButton, activeTab === "Achievements" && styles.activeTabButton]} onPress={() => setActiveTab("Achievements")}>
                     <Icon name="trophy" size={24} color={activeTab === "Achievements" ? "#030E38" : "#aaa"} />
                 </TouchableOpacity>
-
                 <TouchableOpacity style={[styles.tabButton, activeTab === "Statistics" && styles.activeTabButton]} onPress={() => setActiveTab("Statistics")}>
                     <Icon name="bar-chart" size={24} color={activeTab === "Statistics" ? "#030E38" : "#aaa"} />
                 </TouchableOpacity>
@@ -176,7 +184,6 @@ const Achievements = ({ achievements }: { achievements: string }) => {
     );
 };
 
-
 const Statistics = ({ statistics }: { statistics: { progress: string | null } }) => (
     <View style={styles.tabContent}>
         <ImageBackground
@@ -189,7 +196,6 @@ const Statistics = ({ statistics }: { statistics: { progress: string | null } })
         </ImageBackground>
     </View>
 );
-
 
 const styles = StyleSheet.create({
     container: {
@@ -252,12 +258,14 @@ const styles = StyleSheet.create({
         color: "#030E38",
         marginTop: 5,
     },
-
     separator: {
         height: 1,
-        backgroundColor: "#ddd",
-        marginVertical: 20,
+        backgroundColor: "#fff",
+        width: "90%",
+        alignSelf: "center",
+        marginVertical: 10,
     },
+
     tabButtons: {
         flexDirection: "row",
         justifyContent: "space-around",
@@ -312,7 +320,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         position: "absolute",
         top: 180,
-        left: 55
+        left: 55,
     },
     loadingContainer: {
         flex: 1,

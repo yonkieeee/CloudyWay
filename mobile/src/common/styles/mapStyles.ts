@@ -54,12 +54,7 @@ const mapStyles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  searchInput: {
-    height: 30,
-    flex: 1,
-    color: "#000",
-    backgroundColor: "transparent",
-  },
+
   profileButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -243,6 +238,118 @@ const mapStyles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
   },
+  searchWrapper: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    right: 10,
+    zIndex: 10,
+  },
+
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    bottom: 50,
+    borderRadius: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0,
+    shadowRadius: 4,
+    elevation: 5,
+    backgroundColor: '#fff',
+  },
+
+  searchInput: {
+    flex: 1,
+    paddingLeft: 10,
+    paddingRight: 10, // щоб текст не впирався у плюс
+    fontSize: 16,
+    color: '#000',
+  },
+
+  addIconInsideSearch: {
+    marginLeft: 10,
+  },
+
+
+  suggestionsContainer: {
+    backgroundColor: 'white',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    bottom:57,
+    maxHeight: 200,
+    overflow: 'scroll',
+    zIndex: 9,
+    position: 'relative',
+  },
+
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: 'white',
+  },
+
+  suggestionText: {
+    fontSize: 16,
+    color: 'black',
+  },
+  addButton: {
+    marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalContainer: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+  },
+
+  modalTitle2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+
+  modalButtons: {
+    flexDirection: 'row',            // Розташування поруч
+    justifyContent: 'space-between', // Відстань між кнопками
+  },
+
+  modalButton: {
+    flex: 1,                         // Однакова ширина
+    backgroundColor: '#007AFF',
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginHorizontal: 5,             // Відстань між кнопками
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+
 });
 
 export default mapStyles;

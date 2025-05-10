@@ -11,6 +11,13 @@ export default function RootLayout() {
       <Stack.Screen name={ROUTES.map} />
       <Stack.Screen name={ROUTES.album} />
       <Stack.Screen name={ROUTES.profile} />
+      <Stack.Screen name={ROUTES.postscreen}  />
+      <Stack.Screen name={ROUTES.addLocation}/>
+      <Stack.Screen name={ROUTES.details}  />
+      <Stack.Screen name={ROUTES.forgotPassword}/>
+      <Stack.Screen name={ROUTES.forgotPasswordSend}  />
+      <Stack.Screen name={ROUTES.splashScreen}/>
+      <Stack.Screen name={ROUTES.resetPassword}  />
     </Stack>
   );
 }
