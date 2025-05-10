@@ -422,13 +422,14 @@ const AuthScreen: React.FC = () => {
     router.push("/profile");
   };
 
-  const openPlus = (): void => {
-    setIsPlusVisible(true);
-  };
+  // const openPlus = (): void => {
+  //   setIsPlusVisible(true);
+  // };
+  //
+  // const closePlus = (): void => {
+  //   setIsPlusVisible(false);
+  // };
 
-  const closePlus = (): void => {
-    setIsPlusVisible(false);
-  };
   const opacityAnim = useRef(new Animated.Value(0.9)).current; // Початкова прозорість
 
   const [opacityValue, setOpacityValue] = useState(0.9); // Зберігаємо значення прозорості в state
@@ -694,11 +695,17 @@ const AuthScreen: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[mapStyles.commonButtonStyle, { position: "absolute" }]}
-        onPress={openPlus}
+          style={[mapStyles.commonButtonStyle, { position: "absolute" }]}
+          onPress={() => router.push("/allsearchprofile")}
       >
         <Icon name="plus" size={40} color="black" style={mapStyles.icon} />
       </TouchableOpacity>
+      {/*<TouchableOpacity*/}
+      {/*  style={[mapStyles.commonButtonStyle, { position: "absolute" }]}*/}
+      {/*  onPress={openPlus}*/}
+      {/*>*/}
+      {/*  <Icon name="plus" size={40} color="black" style={mapStyles.icon} />*/}
+      {/*</TouchableOpacity>*/}
 
       <TouchableOpacity
         style={[mapStyles.barsButton, { position: "absolute" }]}
@@ -754,11 +761,11 @@ const AuthScreen: React.FC = () => {
           visible={isPlusVisible}
           transparent={true}
           animationType="slide"
-          onRequestClose={closePlus}
+          //onRequestClose={closePlus}
       >
         <View style={mapStyles.plusContainer}>
           <TouchableOpacity
-              onPress={closePlus}
+              //onPress={closePlus}
               style={mapStyles.closeButtonAdd}
           >
             <Icon name="times" size={25} color="#fff" />
