@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "expo-router";
@@ -28,11 +29,9 @@ const FriendsProfile: React.FC = () => {
                 const uid = user.uid;
                 setCurrentUid(uid);
 
-                // Отримуємо користувачів, на яких підписаний поточний користувач
                 const followingRes = await axios.get(`http://3.73.129.214:5002/users/getFollowing/${uid}`);
                 const following: string[] = followingRes.data;
 
-                // Отримуємо профілі тільки тих користувачів, на яких підписаний поточний користувач
                 const profiles = await Promise.all(
                     following.map(async (id) => {
                         try {
@@ -40,7 +39,7 @@ const FriendsProfile: React.FC = () => {
                             return {
                                 uid: id,
                                 name: res.data.username || "No name",
-                                status: "follow", // Вже підписано
+                                status: "follow",
                             };
                         } catch {
                             return null;
@@ -79,7 +78,6 @@ const FriendsProfile: React.FC = () => {
                         text: "Yes",
                         onPress: async () => {
                             try {
-                                // Видаляємо слідкування між користувачами
                                 await axios.delete(`http://3.73.129.214:5002/users/deleteFollow/${currentUid}/${uid}`);
                                 await axios.delete(`http://3.73.129.214:5002/users/deleteFollow/${uid}/${currentUid}`);
 
@@ -97,7 +95,6 @@ const FriendsProfile: React.FC = () => {
             );
         } else {
             try {
-                // Додаємо слідкування між користувачами
                 await axios.post(`http://3.73.129.214:5002/users/createFollow/${currentUid}/${uid}`);
                 await axios.post(`http://3.73.129.214:5002/users/createFollow/${uid}/${currentUid}`);
 
@@ -118,7 +115,13 @@ const FriendsProfile: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Friends</Text>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color="#030E38" />
+                </TouchableOpacity>
+                <Text style={styles.title}>Friends</Text>
+                <View style={{ width: 24 }} />
+            </View>
 
             <TextInput
                 value={searchQuery}
@@ -168,11 +171,17 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: "#fff",
     },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 15,
+    },
     title: {
         fontSize: 22,
         fontWeight: "bold",
         textAlign: "center",
-        marginBottom: 15,
+        flex: 1,
     },
     input: {
         borderWidth: 1,

@@ -260,9 +260,12 @@ const styles = StyleSheet.create({
     },
     separator: {
         height: 1,
-        backgroundColor: "#ddd",
-        marginVertical: 20,
+        backgroundColor: "#fff",
+        width: "90%",
+        alignSelf: "center",
+        marginVertical: 10,
     },
+
     tabButtons: {
         flexDirection: "row",
         justifyContent: "space-around",

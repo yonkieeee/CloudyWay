@@ -698,7 +698,7 @@ const AuthScreen: React.FC = () => {
           style={[mapStyles.commonButtonStyle, { position: "absolute" }]}
           onPress={() => router.push("/allsearchprofile")}
       >
-        <Icon name="plus" size={40} color="black" style={mapStyles.icon} />
+        <Icon name="user-plus" size={40} color="black" style={mapStyles.icon} />
       </TouchableOpacity>
       {/*<TouchableOpacity*/}
       {/*  style={[mapStyles.commonButtonStyle, { position: "absolute" }]}*/}

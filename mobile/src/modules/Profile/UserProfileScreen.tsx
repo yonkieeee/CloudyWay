@@ -48,7 +48,6 @@ const UserProfileScreen: React.FC<ProfileProps> = ({ uid }) => {
 
                 setProfile(profileRes.data);
 
-                // Перевірка, чи слідкує
                 const followingRes = await axios.get(`http://3.73.129.214:5002/users/getFollowing/${currentUserId}`);
                 setIsFriend(followingRes.data.includes(uid));
             } catch (error) {
@@ -100,9 +99,10 @@ const UserProfileScreen: React.FC<ProfileProps> = ({ uid }) => {
     return (
         <View style={styles.container}>
             <ImageBackground source={require("../../../assets/images/background.png")} style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.push(`/profile`)}>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <Icon name="arrow-left" size={20} color="#fff" />
                 </TouchableOpacity>
+
 
                 <Text style={styles.profileName}>{profile?.username ?? "User Name"}</Text>
 
@@ -122,11 +122,11 @@ const UserProfileScreen: React.FC<ProfileProps> = ({ uid }) => {
                         <Text style={styles.infoContent}>{profile?.friends ?? 0}</Text>
                     </View>
                     <View style={styles.infoBox}>
-                        <Text style={styles.infoTitle}>Visited</Text>
+                        <Text style={styles.infoTitle}>Visited Places</Text>
                         <Text style={styles.infoContent}>{profile?.visitedPlaces ?? 0}</Text>
                     </View>
                     <View style={styles.infoBox}>
-                        <Text style={styles.infoTitle}>Progress</Text>
+                        <Text style={styles.infoTitle}>Map Progress</Text>
                         <Text style={styles.infoContent}>{profile?.mapProgress ?? "0%"}</Text>
                     </View>
                 </View>
@@ -339,4 +339,3 @@ const styles = StyleSheet.create({
 });
 
 export default UserProfileScreen;
-

@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "expo-router";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface Friend {
     uid: string;
@@ -31,7 +40,9 @@ const FriendsProfile: React.FC = () => {
                 const allUsersRes = await axios.get("http://3.73.129.214:5002/users/getAllUsers");
                 const allUids: string[] = allUsersRes.data;
 
-                const followingRes = await axios.get(`http://3.73.129.214:5002/users/getFollowing/${uid}`);
+                const followingRes = await axios.get(
+                    `http://3.73.129.214:5002/users/getFollowing/${uid}`
+                );
                 const following: string[] = followingRes.data;
 
                 const profiles = await Promise.all(
@@ -39,7 +50,9 @@ const FriendsProfile: React.FC = () => {
                         .filter((id) => id !== uid)
                         .map(async (id) => {
                             try {
-                                const res = await axios.get(`http://51.20.126.241:8080/profile?uid=${id}`);
+                                const res = await axios.get(
+                                    `http://51.20.126.241:8080/profile?uid=${id}`
+                                );
                                 return {
                                     uid: id,
                                     name: res.data.username || "No name",
@@ -52,7 +65,6 @@ const FriendsProfile: React.FC = () => {
                 );
 
                 const validProfiles = profiles.filter(Boolean) as Friend[];
-                // Спочатку підписані (follow), потім інші
                 const sorted = [
                     ...validProfiles.filter((f) => f.status === "follow"),
                     ...validProfiles.filter((f) => f.status === "invite"),
@@ -85,31 +97,31 @@ const FriendsProfile: React.FC = () => {
         const { uid, status } = friend;
 
         if (status === "follow") {
-            Alert.alert(
-                "Unfollow",
-                `Are you sure you want to unfollow ${friend.name}?`,
-                [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                        text: "Yes",
-                        onPress: async () => {
-                            try {
-                                await axios.delete(`http://3.73.129.214:5002/users/deleteFollow/${currentUid}/${uid}`);
-                                setFriendsState((prevState) =>
-                                    prevState.map((f) =>
-                                        f.uid === uid ? { ...f, status: "invite" } : f
-                                    )
-                                );
-                            } catch (err) {
-                                console.error("Failed to unfollow user", err);
-                            }
-                        },
+            Alert.alert("Unfollow", `Are you sure you want to unfollow ${friend.name}?`, [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        try {
+                            await axios.delete(
+                                `http://3.73.129.214:5002/users/deleteFollow/${currentUid}/${uid}`
+                            );
+                            setFriendsState((prevState) =>
+                                prevState.map((f) =>
+                                    f.uid === uid ? { ...f, status: "invite" } : f
+                                )
+                            );
+                        } catch (err) {
+                            console.error("Failed to unfollow user", err);
+                        }
                     },
-                ]
-            );
+                },
+            ]);
         } else {
             try {
-                await axios.post(`http://3.73.129.214:5002/users/createFollow/${currentUid}/${uid}`);
+                await axios.post(
+                    `http://3.73.129.214:5002/users/createFollow/${currentUid}/${uid}`
+                );
                 setFriendsState((prevState) =>
                     prevState.map((f) =>
                         f.uid === uid ? { ...f, status: "follow" } : f
@@ -127,12 +139,18 @@ const FriendsProfile: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>friends</Text>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color="#030E38" />
+                </TouchableOpacity>
+                <Text style={styles.title}>Search all accounts</Text>
+                <View style={{ width: 24 }} />
+            </View>
 
             <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder="Search friends"
+                placeholder="Search account"
                 style={styles.input}
             />
 
@@ -151,15 +169,22 @@ const FriendsProfile: React.FC = () => {
                             <TouchableOpacity onPress={() => openProfile(item.uid)}>
                                 <Text style={styles.friendName}>{item.name}</Text>
                             </TouchableOpacity>
+
                         </View>
                         <TouchableOpacity
-                            style={[styles.button, item.status === "invite" && styles.inviteButton]}
+                            style={[
+                                styles.button,
+                                item.status === "invite" && styles.inviteButton,
+                            ]}
                             onPress={() => toggleStatus(item)}
                         >
                             <Text
-                                style={[styles.buttonText, item.status === "invite" && styles.inviteButtonText]}
+                                style={[
+                                    styles.buttonText,
+                                    item.status === "invite" && styles.inviteButtonText,
+                                ]}
                             >
-                                {item.status === "follow" ? "Friends" : "Add"}
+                                {item.status === "follow" ? "Friends" : "Add to friends"}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -171,7 +196,18 @@ const FriendsProfile: React.FC = () => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-    title: { fontSize: 24, fontWeight: "bold", marginBottom: 12, textAlign: "center" },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 15,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 12,
+        textAlign: "center",
+    },
     input: {
         borderWidth: 1,
         borderColor: "#ccc",
@@ -187,17 +223,35 @@ const styles = StyleSheet.create({
         borderColor: "#ccc",
         alignItems: "center",
     },
-    friendInfo: { flexDirection: "row", alignItems: "center" },
-    friendName: { fontSize: 16 },
+    friendInfo: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    nameWithArrow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    friendName: {
+        fontSize: 16,
+        color: "#030E38",
+    },
     button: {
         backgroundColor: "#1a1a40",
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 6,
     },
-    inviteButton: { backgroundColor: "#ccc" },
-    buttonText: { color: "white", fontWeight: "bold" },
-    inviteButtonText: { color: "#030E38" },
+    inviteButton: {
+        backgroundColor: "#ccc",
+    },
+    buttonText: {
+        color: "white",
+        fontWeight: "bold",
+    },
+    inviteButtonText: {
+        color: "#030E38",
+    },
 });
 
 export default FriendsProfile;
+

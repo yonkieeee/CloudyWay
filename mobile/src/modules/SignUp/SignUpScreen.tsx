@@ -43,11 +43,11 @@ const SignUpScreen: React.FC = () => {
             await saveUid(user.uid);
 
             // 👉 Додаємо користувача в додаткову базу для слідкувань
-            await axios.post('http://3.73.129.214:5002/users/createUser/{uid}');
+            await axios.post(`http://3.73.129.214:5002/users/createUser/${user.uid}`);
 
             // 👉 Додаємо користувача в основну базу (наприклад, для профілю)
             const response = await axios.post(
-                'http://51.20.126.241:8080/auth',
+                "http://51.20.126.241:8080/auth",
                 {
                     uid: user.uid,
                     username: username,
@@ -106,17 +106,19 @@ const SignUpScreen: React.FC = () => {
                     value={email}
                     onChangeText={setEmail}
                 />
-            </View><View style={authStyles.inputContainer}>
-            <Text style={authStyles.label}>Create password</Text>
-            <TextInput
-                style={authStyles.input}
-                placeholder="Create your password"
-                placeholderTextColor="#aaa"
-                secureTextEntry
-                value={createPassword}
-                onChangeText={setPassword}
-            />
-        </View>
+            </View>
+
+            <View style={authStyles.inputContainer}>
+                <Text style={authStyles.label}>Create password</Text>
+                <TextInput
+                    style={authStyles.input}
+                    placeholder="Create your password"
+                    placeholderTextColor="#aaa"
+                    secureTextEntry
+                    value={createPassword}
+                    onChangeText={setPassword}
+                />
+            </View>
 
             <View style={authStyles.inputContainer}>
                 <Text style={authStyles.label}>Confirm password</Text>
