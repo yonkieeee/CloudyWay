@@ -76,7 +76,7 @@ const ProfileScreen = () => {
                 });
 
                 // Отримуємо кількість друзів через getFollowing
-                const friendsResponse = await axios.get(`http://3.73.129.214:5002/users/getFollowing/${uid}`, {
+                const friendsResponse = await axios.get(`http://3.121.196.125:5002/users/getFollowing/${uid}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -101,7 +101,7 @@ const ProfileScreen = () => {
     const handleAddFriend = async (followerId: string, followedId: string) => {
         try {
             // Викликаємо API для створення слідкування
-            await axios.post(`http://3.73.129.214:5002/users/createFollow/${followerId}/${followedId}`);
+            await axios.post(`http://3.121.196.125:5002/users/createFollow/${followerId}/${followedId}`);
             // Після цього повторно отримуємо список друзів
             getProfileData();
         } catch (error) {
@@ -112,7 +112,7 @@ const ProfileScreen = () => {
     const handleRemoveFriend = async (followerId: string, followedId: string) => {
         try {
             // Викликаємо API для видалення слідкування
-            await axios.delete(`http://3.73.129.214:5002/users/deleteFollow/${followerId}/${followedId}`);
+            await axios.delete(`http://3.121.196.125:5002/users/deleteFollow/${followerId}/${followedId}`);
             // Після цього повторно отримуємо список друзів
             getProfileData();
         } catch (error) {
