@@ -37,11 +37,11 @@ const FriendsProfile: React.FC = () => {
                 const uid = user.uid;
                 setCurrentUid(uid);
 
-                const allUsersRes = await axios.get("http://3.73.129.214:5002/users/getAllUsers");
+                const allUsersRes = await axios.get("http://18.156.173.171:5002/users/getAllUsers");
                 const allUids: string[] = allUsersRes.data;
 
                 const followingRes = await axios.get(
-                    `http://3.73.129.214:5002/users/getFollowing/${uid}`
+                    `http://18.156.173.171:5002/users/getFollowing/${uid}`
                 );
                 const following: string[] = followingRes.data;
 
@@ -104,7 +104,7 @@ const FriendsProfile: React.FC = () => {
                     onPress: async () => {
                         try {
                             await axios.delete(
-                                `http://3.73.129.214:5002/users/deleteFollow/${currentUid}/${uid}`
+                                `http://18.156.173.1713.121.196.125:5002/users/deleteFollow/${currentUid}/${uid}`
                             );
                             setFriendsState((prevState) =>
                                 prevState.map((f) =>
@@ -120,7 +120,7 @@ const FriendsProfile: React.FC = () => {
         } else {
             try {
                 await axios.post(
-                    `http://3.73.129.214:5002/users/createFollow/${currentUid}/${uid}`
+                    `http://18.156.173.171:5002/users/createFollow/${currentUid}/${uid}`
                 );
                 setFriendsState((prevState) =>
                     prevState.map((f) =>

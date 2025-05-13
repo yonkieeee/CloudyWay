@@ -73,7 +73,7 @@ const AuthScreen: React.FC = () => {
 
   const fetchMarkers = async (): Promise<Marker[]> => {
     try {
-      const dbUrl = `http://3.122.242.246:5001/places/getAllPlaces`;
+      const dbUrl = `http://3.75.94.120:5001/places/getAllPlaces`;
 
       const dbResponse = await fetch(dbUrl);
       const dbData: Marker[] = await dbResponse.json();
@@ -94,7 +94,7 @@ const AuthScreen: React.FC = () => {
       console.log("Fetched markers from API", apiData);
 
       // Save API data to the database
-      await fetch("https://3.122.242.246:5001/places/addPlace", {
+      await fetch("https://3.75.94.120:5001/places/addPlace", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -258,7 +258,7 @@ const AuthScreen: React.FC = () => {
     console.log("🔎 Пошук запиту:", query);
 
     try {
-      const response = await fetch(`http://3.122.242.246:5001/places/fuzzySearch?query=${query}`);
+      const response = await fetch(`http://3.75.94.120:5001/places/fuzzySearch?query=${query}`);
       const data = await response.json();
 
       console.log("📥 Отримано дані:", data);
@@ -340,7 +340,7 @@ const AuthScreen: React.FC = () => {
     }
 
     try {
-      const discoverUrl = `http://3.122.242.246:5000/locations/discover?query=${encodeURIComponent(newPlaceName)}`;
+      const discoverUrl = `http://3.75.94.120:5000/locations/discover?query=${encodeURIComponent(newPlaceName)}`;
       const discoverResponse = await fetch(discoverUrl);
 
       // Розбираємо відповідь лише один раз
@@ -381,7 +381,7 @@ const AuthScreen: React.FC = () => {
     };
 
     try {
-      const addResponse = await fetch('http://3.122.242.246:5001/places/addPlace', {
+      const addResponse = await fetch('http://3.75.94.120:5001/places/addPlace', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -619,6 +619,11 @@ const AuthScreen: React.FC = () => {
           rotateEnabled={false} // Заборона повороту
           pitchEnabled={false} // Заборона зміни кута нахилу
           onRegionChangeComplete={handleRegionChange} // Відстеження зміни масштабу
+          onPress={() => {
+            if (isSearching) {
+              endSearch(); // Закриває пошук при натисканні на мапу
+            }
+          }}
       >
         {latitude && longitude && (
             <Marker coordinate={{ latitude, longitude }} title="Your location" />

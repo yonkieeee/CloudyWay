@@ -42,13 +42,13 @@ const UserProfileScreen: React.FC<ProfileProps> = ({ uid }) => {
                 const currentUserId = user.uid;
                 setCurrentUid(currentUserId);
 
-                const profileRes = await axios.get(`http://51.20.126.241:8080/profile?uid=${uid}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const profileRes = await axios.get(`http://51.20.126.241:8080/profile?uid=${uid}`
+                   // , {headers: { Authorization: `Bearer ${token}` },}
+                );
 
                 setProfile(profileRes.data);
 
-                const followingRes = await axios.get(`http://3.73.129.214:5002/users/getFollowing/${currentUserId}`);
+                const followingRes = await axios.get(`http://18.156.173.171:5002/users/getFollowing/${currentUserId}`);
                 setIsFriend(followingRes.data.includes(uid));
             } catch (error) {
                 console.error("Error loading profile:", error);
@@ -65,9 +65,9 @@ const UserProfileScreen: React.FC<ProfileProps> = ({ uid }) => {
 
         try {
             if (isFriend) {
-                await axios.delete(`http://3.73.129.214:5002/users/deleteFollow/${currentUid}/${uid}`);
+                await axios.delete(`http://18.156.173.171:5002/users/deleteFollow/${currentUid}/${uid}`);
             } else {
-                await axios.post(`http://3.73.129.214:5002/users/createFollow/${currentUid}/${uid}`);
+                await axios.post(`http://18.156.173.171:5002/users/createFollow/${currentUid}/${uid}`);
             }
             setIsFriend(!isFriend);
         } catch (error) {

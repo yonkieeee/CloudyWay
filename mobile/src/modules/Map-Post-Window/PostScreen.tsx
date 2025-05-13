@@ -1,5 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from 'expo-image-manipulator';
 import React, { useState,useEffect } from "react";
 import {
   View,
@@ -43,7 +44,12 @@ const PostsScreen = () => {
       quality: 1,
     });
     if (!result.canceled && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri); // Зберігаємо URI фото
+      const manipResult = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 800 } }], // зменшуємо ширину
+          { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      setImageUri(manipResult.uri); // Зберігаємо URI фото
       setIsImagePicked(true); // Фото вибрано
       setModalVisible(true); // Показуємо модальне вікно для підтвердження
     }
@@ -98,7 +104,7 @@ const PostsScreen = () => {
     console.log("UID:", uid);
 
     try {
-      const response = await axios.put(
+      const response = await axios.post(
         `http://51.20.126.241:8081/post?UID=${uid}`, // UID передається як параметр запиту
         formData,
         {
