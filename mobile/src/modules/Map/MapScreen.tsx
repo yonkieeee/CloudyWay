@@ -619,6 +619,11 @@ const AuthScreen: React.FC = () => {
           rotateEnabled={false} // Заборона повороту
           pitchEnabled={false} // Заборона зміни кута нахилу
           onRegionChangeComplete={handleRegionChange} // Відстеження зміни масштабу
+          onPress={() => {
+            if (isSearching) {
+              endSearch(); // Закриває пошук при натисканні на мапу
+            }
+          }}
       >
         {latitude && longitude && (
             <Marker coordinate={{ latitude, longitude }} title="Your location" />
