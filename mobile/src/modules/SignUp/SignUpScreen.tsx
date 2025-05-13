@@ -43,7 +43,7 @@ const SignUpScreen: React.FC = () => {
             await saveUid(user.uid);
 
             // 👉 Додаємо користувача в додаткову базу для слідкувань
-            await axios.post(`http://3.73.129.214:5002/users/createUser/${user.uid}`);
+            await axios.post(`http://18.156.173.171:5002/users/createUser/${user.uid}`);
 
             // 👉 Додаємо користувача в основну базу (наприклад, для профілю)
             const response = await axios.post(

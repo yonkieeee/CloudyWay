@@ -29,7 +29,7 @@ const FriendsProfile: React.FC = () => {
                 const uid = user.uid;
                 setCurrentUid(uid);
 
-                const followingRes = await axios.get(`http://3.121.196.125:5002/users/getFollowing/${uid}`);
+                const followingRes = await axios.get(`http://18.156.173.171:5002/users/getFollowing/${uid}`);
                 const following: string[] = followingRes.data;
 
                 const profiles = await Promise.all(
@@ -78,8 +78,8 @@ const FriendsProfile: React.FC = () => {
                         text: "Yes",
                         onPress: async () => {
                             try {
-                                await axios.delete(`http://3.121.196.125:5002/users/deleteFollow/${currentUid}/${uid}`);
-                                await axios.delete(`http://3.121.196.125:5002/users/deleteFollow/${uid}/${currentUid}`);
+                                await axios.delete(`http://18.156.173.171:5002/users/deleteFollow/${currentUid}/${uid}`);
+                                await axios.delete(`http://18.156.173.171:5002/users/deleteFollow/${uid}/${currentUid}`);
 
                                 setFriendsState((prevState) =>
                                     prevState.map((f) =>
@@ -95,8 +95,8 @@ const FriendsProfile: React.FC = () => {
             );
         } else {
             try {
-                await axios.post(`http://3.121.196.125:5002/users/createFollow/${currentUid}/${uid}`);
-                await axios.post(`http://3.121.196.125:5002/users/createFollow/${uid}/${currentUid}`);
+                await axios.post(`http://18.156.173.171:5002/users/createFollow/${currentUid}/${uid}`);
+                await axios.post(`http://18.156.173.171:5002/users/createFollow/${uid}/${currentUid}`);
 
                 setFriendsState((prevState) =>
                     prevState.map((f) =>

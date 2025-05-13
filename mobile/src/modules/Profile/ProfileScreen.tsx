@@ -71,14 +71,14 @@ const ProfileScreen = () => {
                 if (!token) return;
 
                 const uid = user.uid;
-                const response = await axios.get(`http://51.20.126.241:8080/profile?uid=${uid}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const response = await axios.get(`http://51.20.126.241:8080/profile?uid=${uid}`
+                    //, {headers: { Authorization: `Bearer ${token}` },}
+                );
 
                 // Отримуємо кількість друзів через getFollowing
-                const friendsResponse = await axios.get(`http://3.121.196.125:5002/users/getFollowing/${uid}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const friendsResponse = await axios.get(`http://18.156.173.171:5002/users/getFollowing/${uid}`
+            //, {headers: { Authorization: `Bearer ${token}` },}
+                );
 
                 setUserData({
                     name: response.data.username || user.displayName,
@@ -101,7 +101,7 @@ const ProfileScreen = () => {
     const handleAddFriend = async (followerId: string, followedId: string) => {
         try {
             // Викликаємо API для створення слідкування
-            await axios.post(`http://3.121.196.125:5002/users/createFollow/${followerId}/${followedId}`);
+            await axios.post(`http://18.156.173.171:5002/users/createFollow/${followerId}/${followedId}`);
             // Після цього повторно отримуємо список друзів
             getProfileData();
         } catch (error) {
@@ -112,7 +112,7 @@ const ProfileScreen = () => {
     const handleRemoveFriend = async (followerId: string, followedId: string) => {
         try {
             // Викликаємо API для видалення слідкування
-            await axios.delete(`http://3.121.196.125:5002/users/deleteFollow/${followerId}/${followedId}`);
+            await axios.delete(`http://18.156.173.171:5002/users/deleteFollow/${followerId}/${followedId}`);
             // Після цього повторно отримуємо список друзів
             getProfileData();
         } catch (error) {
