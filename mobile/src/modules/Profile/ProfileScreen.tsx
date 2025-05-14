@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ImageBackground,
+  Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,7 +16,6 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Platform } from "react-native";
 import * as ImageManipulator from "expo-image-manipulator";
-
 import * as FileSystem from "expo-file-system";
 
 const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
@@ -43,7 +43,14 @@ const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
       <View style={styles.avatarContainer}>
         <TouchableOpacity onPress={handlePickAndUpload}>
           <View>
-            <View style={styles.avatar} />
+            {userData?.avatarUrl ? (
+              <Image
+                source={{ uri: userData.avatarUrl }}
+                style={styles.avatar}
+              />
+            ) : (
+              <View style={styles.avatar} /> // Порожнє коло як заглушка
+            )}
             <View style={styles.cameraIconContainer}>
               <Icon name="camera" size={20} color="#fff" />
             </View>
@@ -85,18 +92,13 @@ interface UserProfile {
   statistics: {
     progress: string | null;
   };
+  avatarUrl?: string | null;
 }
-
-const getBlobFromUri = async (uri: string) => {
-  const response = await fetch(uri);
-  const blob = await response.blob();
-  return blob;
-};
 
 const handlePickAndUpload = async () => {
   try {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // заміна на новий API
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -121,7 +123,7 @@ const handlePickAndUpload = async () => {
       }
       const manipulatedImage = await ImageManipulator.manipulateAsync(
         image.uri,
-        [{ resize: { width: 800 } }], // Зменшення розміру
+        [{ resize: { width: 800 } }],
         { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG },
       );
 
@@ -193,6 +195,7 @@ const ProfileScreen = () => {
             response.data.achievements ??
             "Achievements section is empty for now.",
           statistics: response.data.statistics ?? { progress: "0%" },
+          avatarUrl: response.data.profileImageUrl ?? null,
         });
       }
 
