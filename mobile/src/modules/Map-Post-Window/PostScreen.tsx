@@ -15,20 +15,58 @@ import axios from "axios"; // Додано для роботи з бекендо
 import { useRoute } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 
+interface Post {
+  placeId: string;
+}
+
 const PostsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isVisited, setIsVisited] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null); // Для збереження URI фото
   const [description, setDescription] = useState(""); // Для введення опису
   const [isImagePicked, setIsImagePicked] = useState(false); // Стейт для вибору фото
-  const [uid, setUid] = useState(1); // Твій UID, може бути з контексту або іншим способом
+  //const [uid, setUid] = useState<string | null>(null); // Твій UID, може бути з контексту або іншим способом
   const route = useRoute();
   const params = useLocalSearchParams();
+  const uid = typeof params.uid === "string" ? params.uid : null;
   const parsedMarker = params.marker ? JSON.parse(params.marker as string) : null;
+  if (parsedMarker) {
+    console.log("Parsed Marker:", parsedMarker);
+  } else {
+    console.log("Marker parameter is missing or malformed.");
+  }
 
   useEffect(() => {
     console.log("Opened for marker:", parsedMarker);
-  }, []);
+  }, [parsedMarker]);
+
+  useEffect(() => {
+    const checkVisitedStatus = async () => {
+      if (!uid || !parsedMarker?.id) return;
+
+      try {
+        const response = await axios.get(`http://51.20.126.241:8081/post?uid=${uid}`);
+        const posts: Post[] = response.data;
+
+        // console.log("Posts fetched for UID:", posts);
+        // console.log("Parsed Marker ID:", parsedMarker.id);
+
+        const hasVisited = posts.some((post: Post) => post.placeId === parsedMarker.id);
+        setIsVisited(hasVisited);  // Update visited status
+
+        console.log("Visited status checked: ", hasVisited);  // Log to ensure correct value
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    if (uid && parsedMarker?.id) {
+      console.log("Checking visited status for marker ID:", parsedMarker.id);  // Log marker ID
+      checkVisitedStatus();
+    }
+  }, [uid, parsedMarker.id]);
+
+
 
   // Відкриття камери
   const openCamera = async () => {
@@ -86,10 +124,7 @@ const PostsScreen = () => {
       alert("User is not authenticated. Please log in.");
       return;
     }
-
     const formData = new FormData();
-
-
 // Додаємо фото та інші дані в FormData
     const file = {
       uri: imageUri,
@@ -105,111 +140,132 @@ const PostsScreen = () => {
 
     try {
       const response = await axios.post(
-        `http://51.20.126.241:8081/post?UID=${uid}`, // UID передається як параметр запиту
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data', // Важливо для завантаження файлів
-          },
-        }
+          `http://51.20.126.241:8081/post?UID=${uid}`, // UID передається як параметр запиту
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data', // Важливо для завантаження файлів
+            },
+          }
       );
 
       console.log('Response from server:', response.data);
 
-      // Закриваємо модальне вікно після успішного запиту
       setIsVisited(true);
       setModalVisible(false);
-      setDescription(""); // Очистка опису
+      setDescription("");
+
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Error uploading data:', error.response?.data || error.message);
-      } else if (error instanceof Error) {
-        console.error('Error uploading data:', error.message);
-      } else {
-        console.error('Unknown error uploading data:', error);
-      }
+      console.error("Error uploading data:", error);
       alert("Error uploading photo. Please try again later.");
     }
-
   };
 
   // Кнопка "Just Mark Visited"
-  const justMarkAsVisited = () => {
-    setIsVisited(true);
-    setModalVisible(false);
-  };
+  // const justMarkAsVisited = async () => {
+  //   try {
+  //     setIsVisited(true);
+  //
+  //     if (!uid || !parsedMarker?.id) {
+  //       console.error('UID or Marker ID not found');
+  //       return;
+  //     }
+  //     const payload = {
+  //       placeId: parsedMarker.id,
+  //       description: '', // немає опису
+  //       imageUrl: '',     // немає фото
+  //     };
+  //
+  //     await axios.post(
+  //         `http://51.20.126.241:8081/post/without-photo?UID=${uid}`,
+  //         payload,
+  //         {
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //         }
+  //     );
+  //
+  //     setModalVisible(false);
+  //     Alert.alert('Success', 'Place marked as visited!');
+  //   } catch (error) {
+  //     console.error('Error saving visited place:', error);
+  //     Alert.alert('Error', 'Failed to mark as visited.');
+  //   }
+  // };
 
   return (
-    <View style={styles.screen}>
-      <View style={styles.card}>
-        <View style={styles.headerRow}>
-          <Text style={styles.nameLocation}>
-            {parsedMarker?.placeName || "Unknown Location"}
-          </Text>
-
-          <FontAwesome
-            name={isVisited ? "star" : "star-o"}
-            size={24}
-            color="#f5c518"
-          />
-        </View>
+      <View style={styles.screen}>
+        <View style={styles.card}>
+          <View style={styles.headerRow}>
+            <Text style={styles.nameLocation}>
+              {parsedMarker?.placeName || "Unknown Location"} {isVisited ? "(Visited)" : ""}
+            </Text>
 
 
-        {/* Кнопка для відображення модального вікна */}
-        <TouchableOpacity
-          style={[styles.markButton, { backgroundColor: isVisited ? "#ccc" : "#2A3B5D" }]}
-          onPress={() => setModalVisible(true)}
-          disabled={isVisited}
-        >
-          <Text style={styles.markButtonText}>{isVisited ? "Visited" : "Mark as Visited"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Модальне вікно для вибору фото та підтвердження */}
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Mark as Visited</Text>
-
-            {/* Кнопки для вибору фото */}
-            <TouchableOpacity style={styles.button} onPress={pickFromGallery}>
-              <Text style={styles.buttonText}>Pick from Gallery</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={openCamera}>
-              <Text style={styles.buttonText}>Take a Photo</Text>
-            </TouchableOpacity>
-
-            {/* Відображення вибраного фото */}
-            {imageUri && <Image source={{ uri: imageUri }} style={styles.imagePreview} />}
-
-            {/* Поле для введення опису після вибору фото */}
-            {isImagePicked && (
-              <>
-                <TextInput
-                  style={styles.descriptionInput}
-                  placeholder="Enter description"
-                  value={description}
-                  onChangeText={setDescription}
-                />
-                <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-                  <Text style={styles.optionText}>Confirm</Text>
-                </TouchableOpacity>
-              </>
-            )}
-
-            {/* Кнопка для простої позначки */}
-            <TouchableOpacity style={styles.justMarkButton} onPress={justMarkAsVisited}>
-              <Text style={styles.justMarkText}>Just Mark Visited</Text>
-            </TouchableOpacity>
-
-            {/* Кнопка для скасування */}
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
+            <FontAwesome
+                name={isVisited ? "star" : "star-o"}
+                size={24}
+                color="#f5c518"
+            />
           </View>
+
+
+          {/* Кнопка для відображення модального вікна */}
+          <TouchableOpacity
+              style={[styles.markButton, { backgroundColor: isVisited ? "#ccc" : "#2A3B5D" }]}
+              onPress={() => setModalVisible(true)}
+              disabled={isVisited}
+          >
+            <Text style={styles.markButtonText}>{isVisited ? "Visited" : "Mark as Visited"}</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+
+        {/* Модальне вікно для вибору фото та підтвердження */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Mark as Visited</Text>
+
+              {/* Кнопки для вибору фото */}
+              <TouchableOpacity style={styles.button} onPress={pickFromGallery}>
+                <Text style={styles.buttonText}>Pick from Gallery</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={openCamera}>
+                <Text style={styles.buttonText}>Take a Photo</Text>
+              </TouchableOpacity>
+
+              {/* Відображення вибраного фото */}
+              {imageUri && <Image source={{ uri: imageUri }} style={styles.imagePreview} />}
+
+              {/* Поле для введення опису після вибору фото */}
+              {isImagePicked && (
+                  <>
+                    <TextInput
+                        style={styles.descriptionInput}
+                        placeholder="Enter description"
+                        value={description}
+                        onChangeText={setDescription}
+                    />
+                    <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+                      <Text style={styles.optionText}>Confirm</Text>
+                    </TouchableOpacity>
+                  </>
+              )}
+
+              {/* Кнопка для простої позначки */}
+              {/*<TouchableOpacity style={styles.justMarkButton} onPress={justMarkAsVisited}>*/}
+              {/*  <Text style={styles.justMarkText}>Just Mark Visited</Text>*/}
+              {/*</TouchableOpacity>*/}
+
+              {/* Кнопка для скасування */}
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
   );
 };
 

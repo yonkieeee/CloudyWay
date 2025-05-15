@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
+import { getAuth } from "firebase/auth";
 
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as Location from "expo-location";
@@ -49,6 +50,7 @@ interface DiscoveredPlace {
 
 const AuthScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
+
   const [selectedMarker, setSelectedMarker] = useState<any | null>(null);
   const [suggestions, setSuggestions] = useState([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -69,6 +71,14 @@ const AuthScreen: React.FC = () => {
   const [coordinates, setCoordinates] = useState<
       { latitude: number; longitude: number }[]
   >([]);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) {
+    console.error("User not logged in");
+    return;
+  }
+  const uid = user.uid;
+
   const mapRef = useRef<any>(null);
 
   const fetchMarkers = async (): Promise<Marker[]> => {
@@ -118,9 +128,11 @@ const AuthScreen: React.FC = () => {
           lng: parseFloat(marker.coordinates.lng as any),
         },
       }));
-      setMarkers(formattedMarkers); // Set markers data
+      setMarkers(formattedMarkers);// Set markers data
+
     });
   }, []);
+
 
   const getUserLocation = async (): Promise<void> => {
     try {
@@ -431,8 +443,8 @@ const AuthScreen: React.FC = () => {
   // };
 
   const opacityAnim = useRef(new Animated.Value(0.9)).current; // Початкова прозорість
-
   const [opacityValue, setOpacityValue] = useState(0.9); // Зберігаємо значення прозорості в state
+  const [visitedData, setVisitedData] = useState<{ [region: string]: number }>({});
 
   // Додаємо слухача для оновлення opacityValue
   useEffect(() => {
@@ -454,6 +466,27 @@ const AuthScreen: React.FC = () => {
       useNativeDriver: false,
     }).start();
   };
+  useEffect(() => {
+    const fetchVisitedData = async () => {
+      try {
+        const response = await fetch(`http://51.20.126.241:8081/visitedPlaces?uid=${uid}`);
+        const data = await response.json();
+
+        const regionOpacityMap: { [region: string]: number } = {};
+
+        data.forEach((item: { region: string; percentage: number }) => {
+          const opacity = Math.max(0, 0.9 - (item.percentage / 100) * 0.9);
+          regionOpacityMap[item.region.trim()] = opacity;
+        });
+
+        setVisitedData(regionOpacityMap);
+      } catch (error) {
+        console.error("Помилка при завантаженні відвіданих місць:", error);
+      }
+    };
+
+    fetchVisitedData();
+  }, [uid]);
 
   return (
     <View
@@ -642,8 +675,13 @@ const AuthScreen: React.FC = () => {
               (point: number[]) => ({
                 latitude: point[1],
                 longitude: point[0],
-              }),
+              })
           );
+
+          const regionName =
+              area.properties?.["name:uk"] || area.properties?.name || "Невідома область";
+
+          const opacity = visitedData[regionName] ?? 0.9; // Якщо немає даних — стандартна непрозорість
 
           return (
               <Polygon
@@ -651,7 +689,7 @@ const AuthScreen: React.FC = () => {
                   coordinates={areaCoords}
                   strokeWidth={0.5}
                   strokeColor="#073882"
-                  fillColor={`rgba(176, 190, 200, ${opacityValue})`} // Використовуємо значення прозорості з state
+                  fillColor={`rgba(176, 190, 200, ${opacity})`}
               />
           );
         })}
@@ -682,6 +720,7 @@ const AuthScreen: React.FC = () => {
                       pathname: "/postscreen",
                       params: {
                         marker: JSON.stringify(marker), // передаємо дані як JSON строку
+                        uid,
                       },
                     });
                   }}
