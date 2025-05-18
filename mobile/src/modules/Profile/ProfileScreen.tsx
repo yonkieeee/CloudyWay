@@ -345,7 +345,6 @@ interface AlbumProps {
   uid: string;
 }
 
-
 const Album: React.FC<AlbumProps> = ({ uid }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
