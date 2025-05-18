@@ -125,12 +125,38 @@ const PostsScreen = () => {
       return;
     }
     const formData = new FormData();
-// Додаємо фото та інші дані в FormData
+    // Функція для отримання імені файлу з URI
+    const getFileName = (uri: string): string => {
+      return uri.split('/').pop() || 'photo.jpg'; // Якщо ім'я не знайдено — даємо дефолт
+    };
+
+// Функція для визначення типу файлу за розширенням
+    const getFileType = (fileName: string): string => {
+      const ext = fileName.split('.').pop()?.toLowerCase();
+
+      switch (ext) {
+        case 'jpg':
+        case 'jpeg':
+          return 'image/jpeg';
+        case 'png':
+          return 'image/png';
+        case 'gif':
+          return 'image/gif';
+        default:
+          return 'application/octet-stream'; // невідомий тип
+      }
+    };
+
+// Використання:
+    const fileName = getFileName(imageUri);
+    const fileType = getFileType(fileName);
+
     const file = {
       uri: imageUri,
-      type: 'image/jpeg', // Тип файлу
-      name: "photo.jpg", // Назва файлу
+      name: fileName,
+      type: fileType,
     };
+
 
     formData.append('file', file as any);
     formData.append('description', description);
