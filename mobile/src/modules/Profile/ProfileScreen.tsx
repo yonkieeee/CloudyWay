@@ -112,7 +112,6 @@ const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
       style={styles.header}
     >
       <TouchableOpacity
-        style={styles.backButton}
         onPress={() => router.push("/map")}
       >
         <Icon name="arrow-left" size={20} color="#fff" />
@@ -346,6 +345,7 @@ interface AlbumProps {
   uid: string;
 }
 
+
 const Album: React.FC<AlbumProps> = ({ uid }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -413,7 +413,7 @@ const Album: React.FC<AlbumProps> = ({ uid }) => {
               onPress={() => setSelectedRegion(item)}
             >
               <Image source={{ uri: regionImages[item] }} style={styles.regionImage} />
-              <View style={styles.regionTextWrapper}>
+              <View>
                 <Text style={styles.regionText}>{item}</Text>
               </View>
             </TouchableOpacity>
@@ -441,7 +441,7 @@ const Album: React.FC<AlbumProps> = ({ uid }) => {
                 onPress={() => setSelectedPlace(item)}
               >
                 <Image source={{ uri: placeImages[item] }} style={styles.regionImage} />
-                <View style={styles.regionTextWrapper}>
+                <View>
                   <Text style={styles.regionText}>{placeDescriptions[item]}</Text>
                 </View>
               </TouchableOpacity>
@@ -731,7 +731,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-
     grid: {
       flexDirection: "row",
       flexWrap: "wrap",
@@ -745,7 +744,6 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       marginBottom: 12,
     },
-
 
   gridContainer: {
     flexDirection: 'row',
@@ -801,9 +799,6 @@ const styles = StyleSheet.create({
   backText: {
     fontWeight: 'bold',
     color: "#030E38",
-    marginBottom: 10,
-  },
-  postContainer: {
     marginBottom: 10,
   },
 
