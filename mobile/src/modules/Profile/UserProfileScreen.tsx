@@ -119,7 +119,7 @@ const UserProfileScreen: React.FC<ProfileProps> = ({ uid }) => {
                 <View style={styles.infoContainer}>
                     <View style={styles.infoBox}>
                         <Text style={styles.infoTitle}>Friends</Text>
-                        <Text style={styles.infoContent}>{profile?.friends ?? 0}</Text>
+                        <Text style={styles.infoContent}>{profile?.friends ?? 3}</Text>
                     </View>
                     <View style={styles.infoBox}>
                         <Text style={styles.infoTitle}>Visited Places</Text>

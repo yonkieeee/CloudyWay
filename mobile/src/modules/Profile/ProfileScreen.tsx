@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -69,9 +70,9 @@ const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
           return;
         }
         const manipulatedImage = await ImageManipulator.manipulateAsync(
-          image.uri,
-          [{ resize: { width: 800 } }],
-          { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG },
+            image.uri,
+            [{ resize: { width: 800 } }],
+            { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG },
         );
 
         const fileUri = manipulatedImage.uri;
@@ -107,62 +108,62 @@ const ProfileHeader = ({ userData }: { userData: UserProfile | null }) => {
   };
 
   return (
-    <ImageBackground
-      source={require("../../../assets/images/background.png")}
-      style={styles.header}
-    >
-      <TouchableOpacity
-        onPress={() => router.push("/map")}
+      <ImageBackground
+          source={require("../../../assets/images/background.png")}
+          style={styles.header}
       >
-        <Icon name="arrow-left" size={20} color="#fff" />
-      </TouchableOpacity>
-      <Text style={styles.profileName}>{userData?.name ?? "User Name"}</Text>
-      <TouchableOpacity
-        style={styles.menuButton}
-        onPress={() => console.log("Menu button pressed")}
-      >
-        <Icon name="ellipsis-h" size={20} color="#fff" />
-      </TouchableOpacity>
-
-      <View style={styles.avatarContainer}>
-        <TouchableOpacity onPress={handlePickAndUpload}>
-          <View>
-            {userData?.avatarUrl ? (
-              <Image
-                source={{ uri: userData.avatarUrl }}
-                style={styles.avatar}
-              />
-            ) : (
-              <View style={styles.avatar} />
-            )}
-            <View style={styles.cameraIconContainer}>
-              <Icon name="camera" size={20} color="#fff" />
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.infoContainer}>
         <TouchableOpacity
-          style={styles.infoBox}
-          onPress={() => router.push("/friendsearch")}
+            onPress={() => router.push("/map")}
         >
-          <Text style={styles.infoTitle}>Friends</Text>
-          <Text style={styles.infoContent}>{userData?.friends ?? 0}</Text>
+          <Icon name="arrow-left" size={20} color="#fff" />
         </TouchableOpacity>
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Visited Places</Text>
-          <Text style={styles.infoContent}>{userData?.visitedPlaces ?? 0}</Text>
+        <Text style={styles.profileName}>{userData?.name ?? "User Name"}</Text>
+        <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => console.log("Menu button pressed")}
+        >
+          <Icon name="ellipsis-h" size={20} color="#fff" />
+        </TouchableOpacity>
+
+        <View style={styles.avatarContainer}>
+          <TouchableOpacity onPress={handlePickAndUpload}>
+            <View>
+              {userData?.avatarUrl ? (
+                  <Image
+                      source={{ uri: userData.avatarUrl }}
+                      style={styles.avatar}
+                  />
+              ) : (
+                  <View style={styles.avatar} />
+              )}
+              <View style={styles.cameraIconContainer}>
+                <Icon name="camera" size={20} color="#fff" />
+              </View>
+            </View>
+          </TouchableOpacity>
         </View>
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Map Progress</Text>
-          <Text style={styles.infoContent}>
-            {userData?.mapProgress ?? "0%"}
-          </Text>
+
+        <View style={styles.infoContainer}>
+          <TouchableOpacity
+              style={styles.infoBox}
+              onPress={() => router.push("/friendsearch")}
+          >
+            <Text style={styles.infoTitle}>Friends</Text>
+            <Text style={styles.infoContent}>{userData?.friends ?? 0}</Text>
+          </TouchableOpacity>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoTitle}>Visited Places</Text>
+            <Text style={styles.infoContent}>{userData?.visitedPlaces ?? 0}</Text>
+          </View>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoTitle}>Map Progress</Text>
+            <Text style={styles.infoContent}>
+              {userData?.mapProgress ?? "0%"}
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.separator}></View>
-    </ImageBackground>
+        <View style={styles.separator}></View>
+      </ImageBackground>
   );
 };
 
@@ -182,11 +183,11 @@ const ProfileScreen = () => {
 
         const uid = user.uid;
         const response = await axios.get(
-          `http://51.20.126.241:8080/profile?uid=${uid}`,
+            `http://51.20.126.241:8080/profile?uid=${uid}`,
         );
 
         const friendsResponse = await axios.get(
-          `http://18.156.173.171:5002/users/getFollowing/${uid}`,
+            `http://18.156.173.171:5002/users/getFollowing/${uid}`,
         );
 
         setUserData({
@@ -196,8 +197,8 @@ const ProfileScreen = () => {
           mapProgress: response.data.mapProgress ?? "0%",
           album: response.data.album ?? [],
           achievements:
-            response.data.achievements ??
-            "Achievements section is empty for now.",
+              response.data.achievements ??
+              "Achievements section is empty for now.",
           statistics: response.data.statistics ?? { progress: "0%" },
           avatarUrl: response.data.profileImageUrl ?? null,
         });
@@ -213,7 +214,7 @@ const ProfileScreen = () => {
   const handleAddFriend = async (followerId: string, followedId: string) => {
     try {
       await axios.post(
-        `http://18.156.173.171:5002/users/createFollow/${followerId}/${followedId}`,
+          `http://18.156.173.171:5002/users/createFollow/${followerId}/${followedId}`,
       );
       getProfileData();
     } catch (error) {
@@ -224,7 +225,7 @@ const ProfileScreen = () => {
   const handleRemoveFriend = async (followerId: string, followedId: string) => {
     try {
       await axios.delete(
-        `http://18.156.173.171:5002/users/deleteFollow/${followerId}/${followedId}`,
+          `http://18.156.173.171:5002/users/deleteFollow/${followerId}/${followedId}`,
       );
       getProfileData();
     } catch (error) {
@@ -237,9 +238,9 @@ const ProfileScreen = () => {
   }, []);
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#273466" />
-      </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#273466" />
+        </View>
     );
   }
   const renderContent = () => {
@@ -248,15 +249,15 @@ const ProfileScreen = () => {
         return <Album album={userData?.album || []} />;
       case "Achievements":
         return (
-          <Achievements
-            achievements={
-              userData?.achievements || "Achievements section is empty for now."
-            }
-          />
+            <Achievements
+                achievements={
+                    userData?.achievements || "Achievements section is empty for now."
+                }
+            />
         );
       case "Statistics":
         return (
-          <Statistics statistics={userData?.statistics || { progress: null }} />
+            <Statistics statistics={userData?.statistics || { progress: null }} />
         );
       default:
         return <Album album={userData?.album || []} />;
@@ -264,52 +265,52 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {userData && <ProfileHeader userData={userData} />}
-      <View style={styles.separator} />
-      <View style={styles.tabButtons}>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "Album" && styles.activeTabButton,
-          ]}
-          onPress={() => setActiveTab("Album")}
-        >
-          <Icon
-            name="book"
-            size={24}
-            color={activeTab === "Album" ? "#030E38" : "#aaa"}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "Achievements" && styles.activeTabButton,
-          ]}
-          onPress={() => setActiveTab("Achievements")}
-        >
-          <Icon
-            name="trophy"
-            size={24}
-            color={activeTab === "Achievements" ? "#030E38" : "#aaa"}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "Statistics" && styles.activeTabButton,
-          ]}
-          onPress={() => setActiveTab("Statistics")}
-        >
-          <Icon
-            name="bar-chart"
-            size={24}
-            color={activeTab === "Statistics" ? "#030E38" : "#aaa"}
-          />
-        </TouchableOpacity>
+      <View style={styles.container}>
+        {userData && <ProfileHeader userData={userData} />}
+        <View style={styles.separator} />
+        <View style={styles.tabButtons}>
+          <TouchableOpacity
+              style={[
+                styles.tabButton,
+                activeTab === "Album" && styles.activeTabButton,
+              ]}
+              onPress={() => setActiveTab("Album")}
+          >
+            <Icon
+                name="book"
+                size={24}
+                color={activeTab === "Album" ? "#030E38" : "#aaa"}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+              style={[
+                styles.tabButton,
+                activeTab === "Achievements" && styles.activeTabButton,
+              ]}
+              onPress={() => setActiveTab("Achievements")}
+          >
+            <Icon
+                name="trophy"
+                size={24}
+                color={activeTab === "Achievements" ? "#030E38" : "#aaa"}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+              style={[
+                styles.tabButton,
+                activeTab === "Statistics" && styles.activeTabButton,
+              ]}
+              onPress={() => setActiveTab("Statistics")}
+          >
+            <Icon
+                name="bar-chart"
+                size={24}
+                color={activeTab === "Statistics" ? "#030E38" : "#aaa"}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.tabContainer}>{renderContent()}</View>
       </View>
-      <View style={styles.tabContainer}>{renderContent()}</View>
-    </View>
   );
 };
 
@@ -353,15 +354,15 @@ const Album: React.FC<AlbumProps> = ({ uid }) => {
 
   useEffect(() => {
     fetch(`http://51.20.126.241:8081/post?uid=QsU3AzpnJadLo6LGfvB9o2b5yh92`)
-      .then(response => response.json())
-      .then(data => {
-        setPosts(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Fetch error:', err);
-        setLoading(false);
-      });
+        .then(response => response.json())
+        .then(data => {
+          setPosts(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Fetch error:', err);
+          setLoading(false);
+        });
   }, [uid]);
 
   if (loading) return <Text>Завантаження...</Text>;
@@ -397,93 +398,93 @@ const Album: React.FC<AlbumProps> = ({ uid }) => {
   const boxSize = Dimensions.get('window').width / 2 - 20;
 
   return (
-    <View style={styles.container}>
+      <View style={styles.container}>
 
-      {/* 1. Список областей */}
-      {!selectedRegion && !selectedPlace && (
-        <FlatList
-          data={uniqueRegions}
-          keyExtractor={(region) => region}
-          numColumns={2}
-          contentContainerStyle={{ padding: 10 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[styles.regionBox, { width: boxSize, height: boxSize }]}
-              onPress={() => setSelectedRegion(item)}
-            >
-              <Image source={{ uri: regionImages[item] }} style={styles.regionImage} />
-              <View>
-                <Text style={styles.regionText}>{item}</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
-      )}
+        {/* 1. Список областей */}
+        {!selectedRegion && !selectedPlace && (
+            <FlatList
+                data={uniqueRegions}
+                keyExtractor={(region) => region}
+                numColumns={2}
+                contentContainerStyle={{ padding: 10 }}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                        style={[styles.regionBox, { width: boxSize, height: boxSize }]}
+                        onPress={() => setSelectedRegion(item)}
+                    >
+                      <Image source={{ uri: regionImages[item] }} style={styles.regionImage} />
+                      <View>
+                        <Text style={styles.regionText}>{item}</Text>
+                      </View>
+                    </TouchableOpacity>
+                )}
+            />
+        )}
 
-      {selectedRegion && !selectedPlace && (
-        <View style={{ flex: 1, position: 'relative' }}>
-          <TouchableOpacity
-            onPress={() => setSelectedRegion(null)}
-            style={styles.backButton1}
-          >
-            <Text style={styles.backText}>← Назад до областей</Text>
-          </TouchableOpacity>
-
-          <FlatList
-            data={uniquePlacesInRegion}
-            keyExtractor={(placeId) => placeId}
-            numColumns={2}
-            contentContainerStyle={{ padding: 10, paddingTop: 60 }} // Щоб не перекривати кнопку
-            renderItem={({ item }) => (
+        {selectedRegion && !selectedPlace && (
+            <View style={{ flex: 1, position: 'relative' }}>
               <TouchableOpacity
-                style={[styles.regionBox, { width: boxSize, height: boxSize }]}
-                onPress={() => setSelectedPlace(item)}
+                  onPress={() => setSelectedRegion(null)}
+                  style={styles.backButton1}
               >
-                <Image source={{ uri: placeImages[item] }} style={styles.regionImage} />
-                <View>
-                  <Text style={styles.regionText}>{placeDescriptions[item]}</Text>
-                </View>
+                <Text style={styles.backText}>← Назад до областей</Text>
               </TouchableOpacity>
-            )}
-          />
-        </View>
-      )}
+
+              <FlatList
+                  data={uniquePlacesInRegion}
+                  keyExtractor={(placeId) => placeId}
+                  numColumns={2}
+                  contentContainerStyle={{ padding: 10, paddingTop: 60 }} // Щоб не перекривати кнопку
+                  renderItem={({ item }) => (
+                      <TouchableOpacity
+                          style={[styles.regionBox, { width: boxSize, height: boxSize }]}
+                          onPress={() => setSelectedPlace(item)}
+                      >
+                        <Image source={{ uri: placeImages[item] }} style={styles.regionImage} />
+                        <View>
+                          <Text style={styles.regionText}>{placeDescriptions[item]}</Text>
+                        </View>
+                      </TouchableOpacity>
+                  )}
+              />
+            </View>
+        )}
 
 
-      {/* 3. Пости вибраної точки */}
-      {selectedPlace && (
-        <View style={{ flex: 1, position: 'relative' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-            <TouchableOpacity onPress={() => setSelectedPlace(null)} style={styles.backButton2}>
-              <Text style={styles.backText}>← Назад до точок</Text>
-            </TouchableOpacity>
-          </View>
-
-          <FlatList
-            data={postsForPlace}
-            keyExtractor={item => item.postID}
-            contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
-            renderItem={({ item }) => (
-              <View style={styles.postContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.image} />
-                <Text style={styles.description}>{item.description}</Text>
+        {/* 3. Пости вибраної точки */}
+        {selectedPlace && (
+            <View style={{ flex: 1, position: 'relative' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                <TouchableOpacity onPress={() => setSelectedPlace(null)} style={styles.backButton2}>
+                  <Text style={styles.backText}>← Назад до точок</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          />
-        </View>
-      )}
-    </View>
+
+              <FlatList
+                  data={postsForPlace}
+                  keyExtractor={item => item.postID}
+                  contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
+                  renderItem={({ item }) => (
+                      <View style={styles.postContainer}>
+                        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+                        <Text style={styles.description}>{item.description}</Text>
+                      </View>
+                  )}
+              />
+            </View>
+        )}
+      </View>
   );
 };
 
 
 const Achievements = ({ achievements }: { achievements: string }) => {
   return (
-    <View style={styles.tabContent}>
-      <Text style={styles.mapText}>
-        {achievements || "Achievements section is empty for now."}
-      </Text>
-    </View>
+      <View style={styles.tabContent}>
+        <Text style={styles.mapText}>
+          {achievements || "Achievements section is empty for now."}
+        </Text>
+      </View>
   );
 };
 
@@ -492,18 +493,18 @@ const Statistics = ({
                     }: {
   statistics: { progress: string | null };
 }) => (
-  <View style={styles.tabContent}>
-    <ImageBackground
-      source={require("../../../assets/images/map_statistic.png")}
-      style={styles.statisticsBackground}
-    >
-      <View style={styles.statisticsContent}>
-        <Text style={styles.statisticsText}>
-          Progress: {statistics.progress || "0%"}
-        </Text>
-      </View>
-    </ImageBackground>
-  </View>
+    <View style={styles.tabContent}>
+      <ImageBackground
+          source={require("../../../assets/images/map_statistic.png")}
+          style={styles.statisticsBackground}
+      >
+        <View style={styles.statisticsContent}>
+          <Text style={styles.statisticsText}>
+            Progress: {statistics.progress || "0%"}
+          </Text>
+        </View>
+      </ImageBackground>
+    </View>
 );
 
 const styles = StyleSheet.create({
@@ -730,19 +731,19 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-    grid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      padding: 1,
-    },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    padding: 1,
+  },
 
-    modalImage: {
-      width: "100%",
-      height: 300,
-      borderRadius: 8,
-      marginBottom: 12,
-    },
+  modalImage: {
+    width: "100%",
+    height: 300,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
 
   gridContainer: {
     flexDirection: 'row',

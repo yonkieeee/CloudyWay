@@ -13,7 +13,7 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
 import { getAuth } from "firebase/auth";
-
+import axios from "axios";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import UkraineGeoJSON from "../../common/geo/Ukraine.json";
@@ -52,10 +52,8 @@ const AuthScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   const [selectedMarker, setSelectedMarker] = useState<any | null>(null);
-  const [suggestions, setSuggestions] = useState([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isPlusVisible, setIsPlusVisible] = useState(false);
@@ -63,11 +61,14 @@ const AuthScreen: React.FC = () => {
   const router = useRouter();
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [discoveredPlaces, setDiscoveredPlaces] = useState<DiscoveredPlace[]>([]);
-  const [isPlaceChoiceVisible, setIsPlaceChoiceVisible] = useState(false);
   const [newPlaceName, setNewPlaceName] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [latitude, setLatitude] = useState<number | null>(null);
+  const opacityAnim = useRef(new Animated.Value(0.9)).current; // Початкова прозорість
+  const [opacityValue, setOpacityValue] = useState(0.9); // Зберігаємо значення прозорості в state
+  const [visitedData, setVisitedData] = useState<{ [region: string]: number }>({});
+  const [visitedPlaceIds, setVisitedPlaceIds] = useState<string[]>([]);
   const [coordinates, setCoordinates] = useState<
       { latitude: number; longitude: number }[]
   >([]);
@@ -128,11 +129,25 @@ const AuthScreen: React.FC = () => {
           lng: parseFloat(marker.coordinates.lng as any),
         },
       }));
-      setMarkers(formattedMarkers);// Set markers data
+      setMarkers(formattedMarkers);
 
     });
   }, []);
 
+  useEffect(() => {
+    const fetchVisitedPlaces = async () => {
+      try {
+        const response = await axios.get(`http://51.20.126.241:8081/post?uid=${uid}`);
+        const posts = response.data;
+        const ids = posts.map((post: any) => post.placeId.toString());
+        setVisitedPlaceIds(ids);
+      } catch (err) {
+        console.error("Failed to fetch visited places:", err);
+      }
+    };
+
+    if (uid) fetchVisitedPlaces();
+  }, [uid]);
 
   const getUserLocation = async (): Promise<void> => {
     try {
@@ -191,7 +206,7 @@ const AuthScreen: React.FC = () => {
       longitude: point[0],
     }));
 
-    setCoordinates(formattedCoords); // ✅ Тепер setCoordinates існує
+    setCoordinates(formattedCoords); //  Тепер setCoordinates існує
   };
 
 
@@ -212,10 +227,6 @@ const AuthScreen: React.FC = () => {
     setIsMenuVisible(false);
   };
 
-  // const handleNearby = () => {
-  //   router.push("/postscreen");
-  //   closeMenu();
-  // };
   const handleNearby = () => {
     Alert.alert("Places nearby", "Displaying nearby locations.");
     closeMenu();
@@ -267,22 +278,22 @@ const AuthScreen: React.FC = () => {
   };
 
   const fetchSearchResults = async (query: string) => {
-    console.log("🔎 Пошук запиту:", query);
+    console.log("Пошук запиту:", query);
 
     try {
       const response = await fetch(`http://3.75.94.120:5001/places/fuzzySearch?query=${query}`);
       const data = await response.json();
 
-      console.log("📥 Отримано дані:", data);
+      console.log(" Отримано дані:", data);
 
       if (response.ok && data.length > 0) {
         setSearchResults(data);
-        console.log("✅ Результати пошуку встановлено:", data.length, "знайдено");
+        console.log("Результати пошуку встановлено:", data.length, "знайдено");
       } else {
-        console.log("❗️Немає збігів або неуспішна відповідь");
+        console.log("Немає збігів або неуспішна відповідь");
       }
     } catch (error) {
-      console.error("🚨 Помилка при пошуку:", error);
+      console.error("Помилка при пошуку:", error);
     }
   };
 
@@ -298,7 +309,7 @@ const AuthScreen: React.FC = () => {
 
   const goToPlace = (place: any) => {
     console.log("goToPlace called with:", place);
-    console.log(`📍 Спроба перейти до координат: lat=${place.coordinates.lat}, lng=${place.coordinates.lng}`);
+    console.log(` Спроба перейти до координат: lat=${place.coordinates.lat}, lng=${place.coordinates.lng}`);
 
     const existingMarker = markers.find(
         m =>
@@ -308,8 +319,8 @@ const AuthScreen: React.FC = () => {
     );
 
     if (existingMarker) {
-      console.log("✅ Маркер вже існує, виділяємо його та переходимо");
-      console.log(`🎯 Координати маркера: lat=${existingMarker.coordinates.lat}, lng=${existingMarker.coordinates.lng}`);
+      console.log(" Маркер вже існує, виділяємо його та переходимо");
+      console.log(` Координати маркера: lat=${existingMarker.coordinates.lat}, lng=${existingMarker.coordinates.lng}`);
 
       setSelectedMarker(existingMarker);
 
@@ -321,25 +332,25 @@ const AuthScreen: React.FC = () => {
           longitudeDelta: 0.001,
         }, 1000);
       } else {
-        console.log("❌ mapRef.current is null");
+        console.log(" mapRef.current is null");
       }
 
     } else {
-      console.log("➕ Маркер не знайдено, не переходимо");
+      console.log("Маркер не знайдено, не переходимо");
     }
   };
 
   const handleSearchSubmit = () => {
-    console.log("📤 Надіслано пошук:", searchText);
+    console.log(" Надіслано пошук:", searchText);
 
     if (searchText.trim()) {
       fetchMarkers().then((fetchedMarkers) => {
-        console.log("📍 Отримано маркери:", fetchedMarkers.length);
+        console.log(" Отримано маркери:", fetchedMarkers.length);
         setMarkers(fetchedMarkers);
         Alert.alert("Searching", `Results for: ${searchText}`);
       });
     } else {
-      console.log("❗️ Порожній пошуковий текст");
+      console.log("Порожній пошуковий текст");
     }
 
     endSearch();
@@ -355,25 +366,24 @@ const AuthScreen: React.FC = () => {
       const discoverUrl = `http://3.75.94.120:5000/locations/discover?query=${encodeURIComponent(newPlaceName)}`;
       const discoverResponse = await fetch(discoverUrl);
 
-      // Розбираємо відповідь лише один раз
       const places = await discoverResponse.json();
 
       if (!discoverResponse.ok) {
-        console.error('❗️ Error discovering place');
+        console.error('Error discovering place');
         Alert.alert('Error', 'Failed to discover place');
         return;
       }
 
       setDiscoveredPlaces(places); // Зберігаємо отримані місця
 
-      console.log('📥 Отримано з discover:', places);
+      console.log(' Отримано з discover:', places);
 
       if (!Array.isArray(places) || places.length === 0) {
         Alert.alert('No results', 'No place found with this name');
         return;
       }
     } catch (error) {
-      console.error('🚨 Error:', error);
+      console.error('Error:', error);
       Alert.alert('Error', 'Something went wrong');
     }
   };
@@ -428,23 +438,9 @@ const AuthScreen: React.FC = () => {
     }
   };
 
-
-
   const Profile = (): void => {
     router.push("/profile");
   };
-
-  // const openPlus = (): void => {
-  //   setIsPlusVisible(true);
-  // };
-  //
-  // const closePlus = (): void => {
-  //   setIsPlusVisible(false);
-  // };
-
-  const opacityAnim = useRef(new Animated.Value(0.9)).current; // Початкова прозорість
-  const [opacityValue, setOpacityValue] = useState(0.9); // Зберігаємо значення прозорості в state
-  const [visitedData, setVisitedData] = useState<{ [region: string]: number }>({});
 
   // Додаємо слухача для оновлення opacityValue
   useEffect(() => {
@@ -634,6 +630,9 @@ const AuthScreen: React.FC = () => {
           style={{ flex: 1 }}
           customMapStyle={customMapStyle} // Застосовуємо стилі
           showsPointsOfInterest={false}
+          showsUserLocation={true} // Показує локацію користувача
+          followsUserLocation={true}
+          showsMyLocationButton={false}
           region={
             latitude && longitude
                 ? {
@@ -658,9 +657,10 @@ const AuthScreen: React.FC = () => {
             }
           }}
       >
-        {latitude && longitude && (
-            <Marker coordinate={{ latitude, longitude }} title="Your location" />
-        )}
+        {/*{latitude && longitude && (*/}
+        {/*    <Marker coordinate={{ latitude, longitude }} title="Your location" />*/}
+        {/*)}*/}
+
         {/* Полігон для меж України */}
         {coordinates.length > 0 && (
             <Polygon
@@ -711,7 +711,11 @@ const AuthScreen: React.FC = () => {
                     latitude: lat,
                     longitude: lng,
                   }}
-                  pinColor={selectedMarker?.placeName === marker.placeName ? "blue" : "blue"}
+                  pinColor={
+                    visitedPlaceIds.includes(marker.id.toString())
+                        ? "red"    // відвідані — червоні
+                        : "blue"   // всі інші — сині
+                  }
                   title={marker.placeName}
                   description={`${marker.street} ${marker.houseNumber}, ${marker.city}, ${marker.county}`}
                   onPress={() => {
@@ -719,7 +723,7 @@ const AuthScreen: React.FC = () => {
                     router.push({
                       pathname: "/postscreen",
                       params: {
-                        marker: JSON.stringify(marker), // передаємо дані як JSON строку
+                        marker: JSON.stringify(marker),
                         uid,
                       },
                     });
@@ -727,8 +731,6 @@ const AuthScreen: React.FC = () => {
               />
           );
         })}
-
-
       </MapView>
 
       <TouchableOpacity
@@ -744,12 +746,6 @@ const AuthScreen: React.FC = () => {
       >
         <Icon name="user-plus" size={40} color="black" style={mapStyles.icon} />
       </TouchableOpacity>
-      {/*<TouchableOpacity*/}
-      {/*  style={[mapStyles.commonButtonStyle, { position: "absolute" }]}*/}
-      {/*  onPress={openPlus}*/}
-      {/*>*/}
-      {/*  <Icon name="plus" size={40} color="black" style={mapStyles.icon} />*/}
-      {/*</TouchableOpacity>*/}
 
       <TouchableOpacity
         style={[mapStyles.barsButton, { position: "absolute" }]}

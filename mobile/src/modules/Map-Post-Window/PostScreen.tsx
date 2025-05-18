@@ -14,6 +14,7 @@ import {
 import axios from "axios"; // Додано для роботи з бекендом
 import { useRoute } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
+import * as Location from "expo-location";
 
 interface Post {
   placeId: string;
@@ -66,51 +67,104 @@ const PostsScreen = () => {
     }
   }, [uid, parsedMarker.id]);
 
+  function getDistanceFromLatLonInMeters(
+      lat1: number,
+      lon1: number,
+      lat2: number,
+      lon2: number
+  ): number {
+    const R = 6371000; // Радіус Землі в метрах
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  const checkProximityAndExecute = async (callback: () => void) => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access location was denied");
+      return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    const userLat = location.coords.latitude;
+    const userLon = location.coords.longitude;
+
+    const markerCoords = parsedMarker?.coordinates;
+
+    if (!markerCoords || typeof markerCoords.lat !== 'number' || typeof markerCoords.lng !== 'number') {
+      alert("Invalid marker coordinates");
+      return;
+    }
+
+    const distance = getDistanceFromLatLonInMeters(
+        userLat,
+        userLon,
+        markerCoords.lat, // широта
+        markerCoords.lng  // довгота
+    );
+    if (distance > 50) {
+      alert(`You are too far from the place to mark it visited.\nDistance: ${distance.toFixed(2)}m`);
+      return;
+    }
+
+    callback();
+  };
 
 
   // Відкриття камери
   const openCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Потрібен дозвіл на камеру");
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+    checkProximityAndExecute(async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        alert("Camera permission is required");
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.canceled && result.assets.length > 0) {
+        const manipResult = await ImageManipulator.manipulateAsync(
+            result.assets[0].uri,
+            [{ resize: { width: 800 } }],
+            { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG }
+        );
+        setImageUri(manipResult.uri);
+        setIsImagePicked(true);
+        setModalVisible(true);
+      }
     });
-    if (!result.canceled && result.assets.length > 0) {
-      const manipResult = await ImageManipulator.manipulateAsync(
-          result.assets[0].uri,
-          [{ resize: { width: 800 } }], // зменшуємо ширину
-          { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG }
-      );
-      setImageUri(manipResult.uri); // Зберігаємо URI фото
-      setIsImagePicked(true); // Фото вибрано
-      setModalVisible(true); // Показуємо модальне вікно для підтвердження
-    }
   };
 
   // Вибір фото з галереї
   const pickFromGallery = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Потрібен дозвіл на галерею");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+    checkProximityAndExecute(async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        alert("Gallery permission is required");
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.canceled && result.assets.length > 0) {
+        setImageUri(result.assets[0].uri);
+        setIsImagePicked(true);
+        setModalVisible(true);
+      }
     });
-    if (!result.canceled && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri); // Зберігаємо URI фото
-      setIsImagePicked(true); // Фото вибрано
-      setModalVisible(true); // Показуємо модальне вікно для підтвердження
-    }
   };
 
   // Функція для підтвердження і відправки даних на сервер
@@ -124,6 +178,7 @@ const PostsScreen = () => {
       alert("User is not authenticated. Please log in.");
       return;
     }
+
     const formData = new FormData();
     // Функція для отримання імені файлу з URI
     const getFileName = (uri: string): string => {
@@ -240,7 +295,11 @@ const PostsScreen = () => {
           {/* Кнопка для відображення модального вікна */}
           <TouchableOpacity
               style={[styles.markButton, { backgroundColor: isVisited ? "#ccc" : "#2A3B5D" }]}
-              onPress={() => setModalVisible(true)}
+              onPress={() => {
+                checkProximityAndExecute(() => {
+                  setModalVisible(true);
+                });
+              }}
               disabled={isVisited}
           >
             <Text style={styles.markButtonText}>{isVisited ? "Visited" : "Mark as Visited"}</Text>
@@ -298,7 +357,7 @@ const PostsScreen = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#ccc",
+    backgroundColor: "#030E38",
     justifyContent: "center",
     alignItems: "center",
   },
