@@ -313,9 +313,9 @@ const PostsScreen = () => {
               <Text style={styles.modalTitle}>Mark as Visited</Text>
 
               {/* Кнопки для вибору фото */}
-              <TouchableOpacity style={styles.button} onPress={pickFromGallery}>
-                <Text style={styles.buttonText}>Pick from Gallery</Text>
-              </TouchableOpacity>
+              {/*<TouchableOpacity style={styles.button} onPress={pickFromGallery}>*/}
+              {/*  <Text style={styles.buttonText}>Pick from Gallery</Text>*/}
+              {/*</TouchableOpacity>*/}
               <TouchableOpacity style={styles.button} onPress={openCamera}>
                 <Text style={styles.buttonText}>Take a Photo</Text>
               </TouchableOpacity>
